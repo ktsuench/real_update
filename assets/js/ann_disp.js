@@ -192,6 +192,10 @@ function reset_scroll_timers(){
 //Initialize Display
 scroll_start('display');
 
-window.setInterval(function(){
-    update_start('scroll-content');
-}, 1000 * 60 * 15);
+var ref_time = new Date();
+window.setTimeout(function(){
+    window.setInterval(function(){
+        update_start('scroll-content');
+        console.log('updated at' + (new Date));
+    }, 1000 * 60 * 15)
+}, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
