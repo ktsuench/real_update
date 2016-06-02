@@ -116,7 +116,8 @@ Class Announcement_Model extends CI_Model{
             
             $log_file = fopen(set_realpath('application/logs').'ann_disp/get_ann_'.$now->format('Y-m-d').'.log', 'a');
             
-            $content = 'Time: '.$now->format('H:i')."\nAnnouncement Queue\n".print_r($query->result_array(), TRUE);
+            $server = $_SERVER['REMOTE_ADDR'] === '::1' ? 'localhost' : $_SERVER['REMOTE_ADDR'];
+            $content = 'Time: '.$now->format('H:i')."\nIP:".$server."\nAnnouncement Queue\n".print_r($query->result_array(), TRUE);
 
             fwrite($log_file, $content);
             
