@@ -29,7 +29,7 @@ Class Announcement_Model extends CI_Model{
             'author'            =>  $this->session->user->email,
             'start_datetime'    =>  $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:s'),
             'end_datetime'      =>  $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:s'),
-            'slug'              =>  url_title($this->session->ann_create['title'],'-',TRUE)
+            'slug'              =>  url_title($this->session->ann_create['title'],'-',TRUE).'-'.(new DateTime())->getTimestamp()
         );
         
         if($slug == FALSE || strpos($slug, $data['slug']) === FALSE)
@@ -51,8 +51,10 @@ Class Announcement_Model extends CI_Model{
                 foreach($record as $key => $val) $data[$i][$key] = $val;
                 
                 //Find a unique slug that isn't already in use
-                $data[$i]['slug'] = self::unique_slug(url_title($data[$i]['title'],'-',TRUE), $taken_slug);
-                
+                $base = url_title($data[$i]['title'],'-',TRUE);
+                $data[$i]['slug'] = $base.'-'.(new DateTime())->getTimestamp();
+                $data[$i]['slug'] = self::unique_slug($data[$i]['slug'], $taken_slug, $base);
+
                 //Update the used slug table
                 $taken_slug[] = $data[$i]['slug'];
                 
@@ -76,9 +78,9 @@ Class Announcement_Model extends CI_Model{
     }
     
     //Used to prevent announcements with the same title to use the same 'unique' slug primary key
-    protected function unique_slug($slug, $table = FALSE){
-        $base = $slug;
-        $i = 1;
+    protected function unique_slug($slug, $table = FALSE, $base = FALSE){
+        if($base === FALSE) $base = $slug;
+        $i = (new DateTime)->getTimestamp();
         if($table === FALSE){
             do{
                 $query = $this->db->get_where(self::TABLE_NAME, array('slug' => $slug));
