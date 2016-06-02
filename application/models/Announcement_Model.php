@@ -109,6 +109,10 @@ Class Announcement_Model extends CI_Model{
         $this->db->order_by('title ASC, start_datetime ASC');
         
         $where = '(start_datetime BETWEEN "1990-01-01 00:00" AND "'.$now->format('Y-m-d H:i').'")';
+
+        //Set time to be 5 minutes ahead so that announcements end at correct times
+        $now->setTime(intval($now->format('H')), intval($now->format('i')) + 5);
+
         $where .= ' AND (end_datetime BETWEEN "'.$now->format('Y-m-d H:i').'" AND "9999-12-31 11:59")';
         
         $query = $this->db->get_where(self::TABLE_NAME, $where);
@@ -118,8 +122,11 @@ Class Announcement_Model extends CI_Model{
             
             $log_file = fopen(set_realpath('application/logs').'ann_disp/get_ann_'.$now->format('Y-m-d').'.log', 'a');
             
+            //Set time back to curret time for logging purposes
+            $now = new DateTime();
+
             $server = $_SERVER['REMOTE_ADDR'] === '::1' ? 'localhost' : $_SERVER['REMOTE_ADDR'];
-            $content = 'Time: '.$now->format('H:i')."\nIP:".$server."\nAnnouncement Queue\n".print_r($query->result_array(), TRUE);
+            $content = 'Time: '.$now->format('H:i:s')."\nIP:".$server."\nAnnouncement Queue\n".print_r($query->result_array(), TRUE);
 
             fwrite($log_file, $content);
             
