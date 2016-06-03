@@ -1,6 +1,16 @@
 'use strict';
 
 /**
+ * Some constant values.
+ * Put here to make it easier to manage/change if required.
+ * @type {String}
+ */
+var container_classname = 'scroll-content-parent';
+var wrapper_classname = 'scroll-content';
+var content_classname = 'flex-panel';
+var content_element_classnames = ['flex-center', 'content'];
+
+/**
  * Collection of timers set to control scroll speed.
  * Needs to be cleared everytime display content is updated from the db.
  * @type {Array}
@@ -21,17 +31,8 @@ function scroll_start(frame){
 
     //Make it so that all children of the frame will be the same width.
     (Array.from(parent_frame.children)).forEach( function(child, index) {
-        child.setAttribute('style', 'width:' + (parent_frame.scrollWidth / parent_frame.children.length - 2) + 'px');
+        child.setAttribute('style', 'width:' + (parent_frame.scrollWidth / parent_frame.children.length - 5) + 'px');
     });
-
-    /**
-     * Some constant values.
-     * Put here to make it easier to manage/change if required.
-     * @type {String}
-     */
-    var container_classname = 'scroll-content-parent';
-    var wrapper_classname = 'scroll-content';
-    var content_classname = 'announcement';
 
     /**
      * Retrieve HTMLCollection object of elements with given classname and then put them
@@ -88,20 +89,23 @@ function scroll_start(frame){
                         var wrapper_position = - (wrapper_width - (container_width - 1));
                         wrapper.setAttribute('style', 'width:' + wrapper_width + 'px; left:' + wrapper_position + 'px;');
 
-                        var panel_num = 2;
-                        //Note: 1000ms = 1s
-                        scroll_timers.push(window.setInterval(function(){
-                            if(discontinuous){
-                                if(wrapper_width < (container_width - 1) * panel_num) panel_num = 1;
-                                var wrapper_position = - (wrapper_width - (container_width - 1) * panel_num++);
-                            }else{
-                                if(wrapper_width < panel_num + (container_width - 1) - 75) panel_num = 1;
-                                var wrapper_position = - (wrapper_width - (container_width - 1) - panel_num);
-                                panel_num += 5;
-                            }
+                        //Only start the scroll timers if there is more than two pieces of content to show
+                        if(contents.length > 2){
+                            var panel_num = 2;
+                            //Note: 1000ms = 1s
+                            scroll_timers.push(window.setInterval(function(){
+                                if(discontinuous){
+                                    if(wrapper_width < (container_width - 1) * panel_num) panel_num = 1;
+                                    var wrapper_position = - (wrapper_width - (container_width - 1) * panel_num++);
+                                }else{
+                                    if(wrapper_width < panel_num + (container_width - 1) - 75) panel_num = 1;
+                                    var wrapper_position = - (wrapper_width - (container_width - 1) - panel_num);
+                                    panel_num += 5;
+                                }
 
-                            wrapper.setAttribute('style', 'width:' + wrapper_width + 'px; left:' + wrapper_position + 'px;');
-                        }, discontinuous === true ? speed : 70));
+                                wrapper.setAttribute('style', 'width:' + wrapper_width + 'px; left:' + wrapper_position + 'px;');
+                            }, discontinuous === true ? speed : 70));
+                        }
                     }else{
                         console.log('Failed to load content for ' + container.getAttribute('id') + '.');
                     }
@@ -132,8 +136,12 @@ function update_start(class_name){
             if(xhr.readyState === DONE){
                 if(xhr.status === OK){
                     data = JSON.parse(xhr.responseText);
-                    data = Object.keys(data).map(function(key){return data[key];});
-                    data = data.reverse();
+
+                    //Check that there is content to be displayed
+                    if(Object.keys(data).length > 0){
+                        data = Object.keys(data).map(function(key){return data[key];});
+                        data = data.reverse();
+                    }
 
                     hooks.forEach( function(hook, index) {
                         //Set up the template of the panels
@@ -145,16 +153,29 @@ function update_start(class_name){
                             'bot': document.createElement('DIV') 
                         };
 
-                        container.top.setAttribute('class', 'announcement');
-                        container.mid.setAttribute('class', 'flex-center');
-                        container.bot.setAttribute('class', 'content');
+                        container.top.setAttribute('class', content_classname);
+                        container.mid.setAttribute('class', content_element_classnames[0]);
+                        container.bot.setAttribute('class', content_element_classnames[1]);
 
                         hook.innerHTML = '';
 
-                        //Replace the current content
-                        for(var item in data){
-                            title.innerHTML = data[item].title;
-                            content.innerHTML = data[item].content;
+                        //Check that there is content to be displayed
+                        if(Object.keys(data).length > 0){
+                            //Replace the current content
+                            for(var item in data){
+                                title.innerHTML = data[item].title;
+                                content.innerHTML = data[item].content;
+
+                                container.bot.innerHTML = title.outerHTML + content.outerHTML;
+                                container.mid.innerHTML = container.bot.outerHTML;
+                                container.top.innerHTML = container.mid.outerHTML;
+
+                                hook.innerHTML += container.top.outerHTML;
+                            }
+                        }else{
+                            //TODO: Allow system admin to set default message
+                            title.innerHTML = 'No Announcements on Display';
+                            content.innerHTML = 'There\'s nothing to show';
 
                             container.bot.innerHTML = title.outerHTML + content.outerHTML;
                             container.mid.innerHTML = container.bot.outerHTML;
@@ -191,11 +212,10 @@ function reset_scroll_timers(){
 
 //Initialize Display
 scroll_start('display');
-
+//TODO: If failed to update display due to internet connection, check again when internet is available
 var ref_time = new Date();
 window.setTimeout(function(){
     window.setInterval(function(){
         update_start('scroll-content');
-        console.log('updated at' + (new Date));
     }, 1000 * 60 * 15)
 }, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
