@@ -28,7 +28,7 @@ body{
     position:relative;
     transition:left 0.5s;
 }
-.announcement{
+.flex-panel{
     overflow:hidden;
     float:left;
     position:relative;
