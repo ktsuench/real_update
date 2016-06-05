@@ -187,8 +187,11 @@ function update_start(class_name){
                         //Reset all the scroll timers that are running
                         reset_scroll_timers();
 
-                        //Set up data order for the next panel
-                        data.push(data.shift());
+                        //Check that there is content to be displayed
+                        if(Object.keys(data).length > 0){
+                            //Set up data order for the next panel
+                            data.push(data.shift());
+                        }
                     });
                 }else console.log('Error updating display. Server Error: ' + xhr.status);
             }
