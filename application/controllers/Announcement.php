@@ -480,6 +480,9 @@ class Announcement extends Navigation{
         $data['title'] = 'Announcements Display';
         $data['stylesheet'][] = 'ann_disp.css';
 
+        //Do not display the copyright in footer template file
+        $data['do_not_display'] = TRUE;
+
         $this->load_view('announcements/display', $data);
     }
     
