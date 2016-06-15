@@ -237,21 +237,25 @@ class Announcement extends Navigation{
                 )
             );
             
-            //Validate scheduled start date is before scheduled end date
-            if(!empty($this->session->ann_create['schedule']['start']) && !empty($this->input->post())){
-                //Set end datetime
-                $this->session->ann_create = self::set_datetime('end');
-                
-                //Store datetime strings of scheduled dates
-                $start_datetime = $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:sP');
-                $end_datetime = $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:sP');
-                
-                //Set form validation rule to check date
-                $form_rules_config[0]['rules'][] = 'callback_check_datetime['.$start_datetime.','.$end_datetime.']';
-            }
-            
+            //If end date is not a valid date then let the form validation procedure catch the error
+            //Thus the catch in this try clause does nothing
+            try{
+                //Validate scheduled start date is before scheduled end date
+                if(!empty($this->session->ann_create['schedule']['start']) && !empty($this->input->post())){
+                    //Set end datetime
+                    $this->session->ann_create = self::set_datetime('end');
+                    
+                    //Store datetime strings of scheduled dates
+                    $start_datetime = $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:sP');
+                    $end_datetime = $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:sP');
+                    
+                    //Set form validation rule to check date
+                    $form_rules_config[0]['rules'][] = 'callback_check_datetime['.$start_datetime.','.$end_datetime.']';
+                }
+            }catch(Exception $e){}
+
             $this->form_validation->set_rules($form_rules_config);
-            
+
             if(empty($this->session->ann_create['schedule']['start']) || $this->form_validation->run() == FALSE){
                 if(empty($this->session->ann_create['schedule']['start']) && $this->form_validation->run() == FALSE)
                     $data['title'] .= ' - Start Date';
@@ -411,13 +415,22 @@ class Announcement extends Navigation{
     
     //Used by Schedule Method for validation purposes
     public function verify_date(){
-        try{
-            $this->set_datetime('start');
-            return TRUE;
-        }catch(Exception $e){
-            $err = 'Please select a valid date.';
-            $this->form_validation->set_message('verify_date', $err);
-            return FALSE;
+        $this->load->library('user_agent');
+        
+        //Redirect user when trying to directly access method
+        if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
+            stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
+            stripos($this->agent->referrer(), 'announcement/schedule') !== FALSE){
+            try{
+                $this->set_datetime('start');
+                return TRUE;
+            }catch(Exception $e){
+                $err = 'Please select a valid date.';
+                $this->form_validation->set_message('verify_date', $err);
+                return FALSE;
+            }
+        }else{
+            redirect('announcement');
         }
     }
 

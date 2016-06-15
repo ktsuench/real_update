@@ -22,8 +22,10 @@ function jump_to_date(y, m){
                     date_field.value = '1';
                     var first_day = document.getElementById('cal_day_1');
                     first_day.className += ' selected';
+                    _selected_date = first_day;
                 }else{
                     date_field.value = now.getDate();
+                    _selected_date = document.getElementById('cal_day_' + date_field.value);
                 }
                 
                 var year_field = document.getElementById('year');
@@ -65,7 +67,7 @@ function attach_date_event(){
         if(date_arr.hasOwnProperty(date)){
             date_arr[date].onclick = function(){
                 var date_field = document.getElementById('date');
-                var prev_date_selected = document.getElementById('cal_day_' + date_field.value);
+                var prev_date_selected = _selected_date;
                 var cls = prev_date_selected.className.split(' ');
                 
                 cls.splice(cls.length-1);
@@ -73,6 +75,7 @@ function attach_date_event(){
                 
                 date_field.value = this.innerHTML;
                 this.className += ' selected';
+                _selected_date = document.getElementById('cal_day_' + date_field.value);
             }
         }
     }
@@ -100,3 +103,7 @@ if(y == parseInt(now.getFullYear()) && m == parseInt(now.getMonth() + 1)){
     cls.splice(cls.length-1);
     rm_date_selected.className = cls.join(' ');
 }
+
+//Used to prevent failure of js script if DOM is modified by user
+//Note: will fail if the script is altered
+var _selected_date = date_selected;
