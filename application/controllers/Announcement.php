@@ -200,7 +200,7 @@ class Announcement extends Navigation{
                 array(
                     'field' =>  'date',
                     'label' =>  'Date',
-                    'rules' =>  array('required'),
+                    'rules' =>  array('required', 'callback_verify_date[]'),
                     'errors'    =>  array(
                         'required'  =>  'A Date needs to be selected.'
                     )
@@ -253,7 +253,7 @@ class Announcement extends Navigation{
             $this->form_validation->set_rules($form_rules_config);
             
             if(empty($this->session->ann_create['schedule']['start']) || $this->form_validation->run() == FALSE){
-                if(empty($this->session->ann_create['schedule']['start']) && $this->form_validation->run() == FALSE) 
+                if(empty($this->session->ann_create['schedule']['start']) && $this->form_validation->run() == FALSE)
                     $data['title'] .= ' - Start Date';
                 else{
                     if(empty($this->session->ann_create['schedule']['start'])){
@@ -409,6 +409,18 @@ class Announcement extends Navigation{
         return $create;
     }
     
+    //Used by Schedule Method for validation purposes
+    public function verify_date(){
+        try{
+            $this->set_datetime('start');
+            return TRUE;
+        }catch(Exception $e){
+            $err = 'Please select a valid date.';
+            $this->form_validation->set_message('verify_date', $err);
+            return FALSE;
+        }
+    }
+
     //Used by Schedule Method
     public function check_datetime($date, $extra){
         $this->load->library('user_agent');
@@ -477,7 +489,7 @@ class Announcement extends Navigation{
     
     public function display(){
         $data['announcement'] = $this->announcement_model->get_announcement_display();
-        $data['title'] = 'Announcements Display';
+        $data['title'] = 'Riverdale Collegiate Institute Announcements Display';
         $data['stylesheet'][] = 'ann_disp.css';
 
         //Do not display the copyright in footer template file

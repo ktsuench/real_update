@@ -68,14 +68,13 @@
         }
 //------------------------------------------------------------------------//
         //Date Hidden
-        if(empty($ann_date)) $ann_date = $this->input->post('date');
         $data = array(
             'type'  =>  'hidden',
             'name'  =>  'date',
             'id'    =>  'date',
         );
         
-        if(empty($ann_date)) $ann_date = $this->input->post('date');
+        if(empty($ann_date) && empty(form_error('date'))) $ann_date = $this->input->post('date');
         if(empty($ann_date) && isset($datetime_ref)) $ann_date = $datetime_ref->format('j');
         if(empty($ann_date)) $ann_date = $now->format('j');
         $data['value'] = $ann_date;
