@@ -522,4 +522,13 @@ class Announcement extends Navigation{
         }
         echo json_encode($info_req, JSON_PRETTY_PRINT);
     }
+
+    public function update_weather(){
+        $appid = '0d93580d7ee4d84bdc222908774fc07b';
+        $query = 'toronto,ca';
+        $units = 'metric';
+        $link = 'http://api.openweathermap.org/data/2.5/weather?q='.$query.'&units='.$units.'&appid='.$appid;
+
+        echo file_get_contents($link);
+    }
 }

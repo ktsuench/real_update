@@ -63,6 +63,7 @@ $route['announcement/delete'] = 'announcement/delete';
 $route['announcement/delete/all'] = 'announcement/delete_all';
 $route['announcement/display'] = 'announcement/display';
 $route['announcement/display/update'] = 'announcement/update_list';
+$route['announcement/display/update/weather'] = 'announcement/update_weather';
 //Anouncement Controller Methods (no direct access allowed)
 $route['announcement/get_calendar'] = 'announcement/get_calendar';
 $route['announcement/get_calendar/(.+)'] = 'announcement/get_calendar';

@@ -8,7 +8,7 @@
 var container_classname = 'scroll-content-parent';
 var wrapper_classname = 'scroll-content';
 var content_classname = 'flex-panel';
-var content_element_classnames = ['flex-center', 'content'];
+var content_element_classnames = ['flex flex-col flex-center', 'content'];
 
 /**
  * Collection of timers set to control scroll speed.
@@ -80,7 +80,7 @@ function scroll_start(frame){
                     if(contents.length > 0){
                         contents.forEach( function(content, index) {
                             if(content.getAttribute('class').indexOf(content_classname) > -1){
-                                content.setAttribute('style', 'width:' + (container_width - 1) + 'px; height:90vh');
+                                content.setAttribute('style', 'width:' + (container_width - 1) + 'px;'); //' height:' + window.getComputedStyle(parent_frame).getPropertyValue('height'));
                                 i++;
                             }
                         });
@@ -92,6 +92,8 @@ function scroll_start(frame){
                         //Only start the scroll timers if there is more than two pieces of content to show
                         if(contents.length > 2){
                             var panel_num = 2;
+
+                            //Type of content scrolling.
                             //Note: 1000ms = 1s
                             scroll_timers.push(window.setInterval(function(){
                                 if(discontinuous){
@@ -197,13 +199,19 @@ function update_start(class_name){
             }
         }
         
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhr.send();
     }else{
         console.log('Nothing to update.');
     }
 }
 
+/**
+ * Clear the existing timers for scrolling the content and create new ones.
+ * In other words, restart the whole process.
+ * 
+ * @return {Null}
+ */
 function reset_scroll_timers(){
     scroll_timers.forEach( function(timer, index) {
         window.clearInterval(timer);
@@ -213,12 +221,126 @@ function reset_scroll_timers(){
     scroll_start('display');
 }
 
-//Initialize Display
-scroll_start('display');
-//TODO: If failed to update display due to internet connection, check again when internet is available
-var ref_time = new Date();
-window.setTimeout(function(){
-    window.setInterval(function(){
-        update_start('scroll-content');
-    }, 1000 * 60 * 15)
-}, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
+/**
+ * [refresh_weather description]
+ * @param  {String} id Weather Element ID
+ * @return {Null}
+ */
+function refresh_weather(id){
+    var data;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', update_weather);
+
+    xhr.onreadystatechange = function(){
+        var DONE = 4; //request is complete
+        var OK = 200; //successful operation
+        
+        if(xhr.readyState === DONE){
+            if(xhr.status === OK){
+                var weather_container = document.getElementById(id);
+                var weather_icon;
+                var weather_temp;
+                var weather_desc;
+
+                data = JSON.parse(xhr.responseText);
+
+                weather_icon = '<i class="wi wi-owm-' + data.weather[0].id + '"></i>';
+                weather_temp = '<span style="margin-left:0.3em;">' + data.main.temp + '<i class="wi wi-celsius"></i></span>';
+                weather_desc = '<span style="text-transform:capitalize;">' + data.weather[0].description + '</span>';
+                weather_container.innerHTML = '<div>' + weather_icon + weather_temp + '</div>' + weather_desc;
+            }else console.log('Error updating weather. Server Error: ' + xhr.status);
+        }
+    }
+
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send();
+}
+
+//Datetime constants
+var monthNames = [ 'Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec' ];
+var dayNames = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+
+/**
+ * Updates the date on the display
+ * @param  {String} id Date Element ID
+ * @return {Null}
+ */
+function retrieve_date(id){
+    // Create a newDate() object
+    var nd = new Date();
+    // Extract the current date from Date object
+    nd.setDate(nd.getDate());
+    // Output the day, date, month and year
+    var clock_date = document.getElementById(id);
+    clock_date.innerHTML = dayNames[nd.getDay()] + ", " + nd.getDate() + " " + monthNames[nd.getMonth()] + ", " + nd.getFullYear();
+}
+
+/**
+ * Updates the time on the display
+ * @param  {String} h   Hour Element ID
+ * @param  {String} m   Minute Element ID
+ * @param  {String} s   Second Element ID
+ * @param  {String} mer Meridian Element ID
+ * @return {Null}
+ */
+function retrieve_time(h,m,s,mer){
+    var clock_hour = document.getElementById(h);
+    var clock_min = document.getElementById(m);
+    var clock_sec = document.getElementById(s);
+    var clock_meridian = document.getElementById(mer);
+
+    var ref_date = new Date();
+    var seconds = ref_date.getSeconds();
+    var minutes = ref_date.getMinutes();
+    var hours = ref_date.getHours();
+
+    clock_sec.innerHTML = ( seconds < 10 ? "0" : "" ) + seconds;
+    clock_min.innerHTML = ( minutes < 10 ? "0" : "" ) + minutes;
+    clock_hour.innerHTML = ((hours > 12 ? hours - 12 : hours) < 10 ? "0" : "" ) + (hours > 12 ? hours - 12 : hours);
+    clock_meridian.innerHTML = (hours > 12 ? "PM" : "AM");
+
+    if(hours===24){retrieve_date();}
+}
+
+//setInterval reference object
+var resize_event;
+
+/**
+ * Initialize the various components of the display
+ * @return {Null}
+ */
+function initialize_display(){
+    //Start the datetime of the display
+    retrieve_date('date');
+    retrieve_time('hour','minute','second','meridian');
+    window.setInterval(function(){retrieve_time('hour','minute','second','meridian')}, 1000);
+
+    //Start the weather update process of the display
+    refresh_weather('weather');
+    window.setTimeout(function(){
+        window.setInterval(function(){refresh_weather('weather')}, 1000 * 60 * 10);
+    }, 1000 * 60 * 10);
+
+    //Start the scrolling content containers
+    scroll_start('display');
+
+    //Start the update content background process
+    //TODO: If failed to update display due to internet connection, check again when internet is available
+    var ref_time = new Date();
+    window.setTimeout(function(){
+        window.setInterval(function(){
+            update_start('scroll-content');
+        }, 1000 * 60 * 15)
+    }, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
+
+    //Refresh Display on Window Resize
+    window.addEventListener('resize', function(e){
+        window.clearTimeout(resize_event);
+        if(window.innerHeight >= 620 && window.innerWidth >= 1024){
+            resize_event = window.setTimeout(function(){reset_scroll_timers();}, 50);
+        }
+    }); 
+}
+
+initialize_display();
