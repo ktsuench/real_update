@@ -114,4 +114,4 @@
     echo anchor(base_url('announcement'), $link_content, 'title="'.$link_content.'"');
 ?>
 <script>var get_cal_url = '<?php echo base_url('announcement/get_calendar'); ?>';</script>
-<script src='<?php echo base_url(''); ?>/assets/js/ann_schedule.js'></script>
+<script src='<?php echo base_url(''); ?>assets/js/ann_schedule.js'></script>

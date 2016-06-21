@@ -8,10 +8,10 @@
 
         <title><?php echo 'Real Update | '.$title; ?></title>
 
-        <link rel="icon" type="image/png" href="<?php echo base_url(''); ?>/assets/images/favicon.png">
+        <link rel="icon" type="image/png" href="<?php echo base_url(''); ?>assets/images/favicon.png">
         <?php
             if(isset($stylesheet)){
-                foreach($stylesheet as $s) echo "<link rel='stylesheet' type='text/css' href='".base_url('')."/assets/css/".$s."'>";
+                foreach($stylesheet as $s) echo "<link rel='stylesheet' type='text/css' href='".base_url('')."assets/css/".$s."'>";
             }
         ?>
     </head>
