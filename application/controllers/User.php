@@ -178,28 +178,6 @@ class User extends Navigation{
             $this->session->mark_as_flash(array('op', 'res'));
             redirect('user');
         }
-        
-        /*
-            $form_rules_config_cb = array(
-                array(
-                    'field' =>  'upload',
-                    'label' =>  'Upload',
-                    'rules' =>  array('required', 'min_length[1]')
-                )
-            );
-            
-            $this->form_validation->set_rules($form_rules_config_cb);
-            
-            if($this->form_validation->run() == FALSE){
-                $this->load_view('users/create/batch', $data, TRUE);
-            }else{
-                $this->load_view('users/create/batch', $data, TRUE);
-                $this->session->op = self::OP_CREATE_BATCH;
-                $this->session->res = $this->user_model->set_user() ? TRUE : FALSE;
-                $this->session->mark_as_flash(array('op', 'res'));
-                redirect('user');
-            }
-        */
     }
     
     public function update($email = NULL){
@@ -333,7 +311,14 @@ class User extends Navigation{
     }
     
     public function logout(){
-        if(isset($this->session->user)) $this->session->sess_destroy();
+        //NOTE: may need to change in the future if session variables are used else where other than dashboard
+        if(isset($this->session->temp_files)){
+            foreach($this->session->temp_files as $t){
+                unlink('./uploads/tmp/'.$t);
+            }
+        }
+        session_unset();
+        session_destroy();
         redirect('');
     }
 }

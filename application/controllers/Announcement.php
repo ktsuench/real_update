@@ -107,6 +107,11 @@ class Announcement extends Navigation{
         if($err == UPLOAD_ERR_OK){
             if(strpos($_FILES['image']['type'], 'image') === 0){
                 if(move_uploaded_file($tmp_name, './uploads/tmp/'.$name)){
+                    //Update the temp files session variable for garbage collection later
+                    $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
+                    $tmp[] = $name;
+                    $this->session->temp_files = $tmp;
+
                     //Store in session variable for later use
                     $this->session->ann_img = $name;
                 }else $upload_err = (ENVIRONMENT == 'development') ? 'Could not move uploaded file.' : $err;
