@@ -49,6 +49,76 @@ class Announcement extends Navigation{
         $this->load_view('announcements', $data, TRUE);
     }
 
+    public function process_image_upload(){
+        $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+
+        $tmp_name = $_FILES["image"]["tmp_name"];
+        $name = basename($_FILES["image"]["name"]);
+
+        //Error messages
+        if($err != UPLOAD_ERR_OK && ENVIRONMENT == 'development'){
+            switch($err){ 
+                case UPLOAD_ERR_INI_SIZE:
+                    $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+                    break;
+                case UPLOAD_ERR_FORM_SIZE:
+                    $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                    $message = "The uploaded file was only partially uploaded";
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    $message = "No file was uploaded";
+                    break;
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    $message = "Missing a temporary folder";
+                    break;
+                case UPLOAD_ERR_CANT_WRITE:
+                    $message = "Failed to write file to disk";
+                    break;
+                case UPLOAD_ERR_EXTENSION:
+                    $message = "File upload stopped by extension";
+                    break;
+                default:
+                    $message = "Unknown upload error";
+                    break;
+            }
+        }else if($err != UPLOAD_ERR_OK){
+            switch($err){ 
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $message = "Failed to upload image. Try selecting a smaller image.";
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                case UPLOAD_ERR_NO_FILE:
+                case UPLOAD_ERR_NO_TMP_DIR:
+                case UPLOAD_ERR_CANT_WRITE:
+                case UPLOAD_ERR_EXTENSION:
+                    $message = "Failed to upload file. Try again later.";
+                    break;
+                default:
+                    $message = "Unknown upload error";
+                    break;
+            }
+        }
+
+        $err = 'Upload error. '.$message;
+
+        if($err == UPLOAD_ERR_OK){
+            if(strpos($_FILES['image']['type'], 'image') === 0){
+                if(move_uploaded_file($tmp_name, './uploads/tmp/'.$name)){
+                    //Store in session variable for later use
+                    $this->session->ann_img = $name;
+                }else $upload_err = (ENVIRONMENT == 'development') ? 'Could not move uploaded file.' : $err;
+            }else $upload_err = 'Please upload a valid image file.';
+        }else $upload_err = $err;
+
+        if(isset($upload_err)){
+            $this->form_validation->set_message('process_image_upload', $upload_err);
+            return FALSE;
+        }else return TRUE;
+    }
+
     //Template for Create and Update Methods
     protected function create_template($settings, $op, $slug = FALSE){
         $data = $settings;
@@ -82,6 +152,11 @@ class Announcement extends Navigation{
                 'label' =>  'Type',
                 'rules' =>  array('required', 'in_list['.$type_list.']'),
                 'errors'    =>  array('in_list' =>  'The Type field must be one of: '.$type_err_msg.'.')
+            ),
+            array(
+                'field' =>  'image',
+                'label' =>  'Image',
+                'rules' =>  array('callback_process_image_upload')
             )
         );
         
@@ -97,6 +172,12 @@ class Announcement extends Navigation{
                     'end'   =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['end'] : ''
                 )
             );
+
+            if(isset($this->session->ann_img)){
+                $create['image'] = $this->session->ann_img;
+                unset($_SESSION['ann_img']);
+            }else if(isset($create['image'])) unset($create['image']);
+
             foreach($this->input->post() as $key => $val) $create[$key] = $val;
             
             //Insert primary key if provided

@@ -22,6 +22,7 @@ Class Announcement_Model extends CI_Model{
     }
     
     public function set_announcement($slug = FALSE){
+        $ann_title = url_title($this->session->ann_create['title'],'-',TRUE);
         $data = array(
             'title'             =>  $this->session->ann_create['title'],
             'content'           =>  $this->session->ann_create['content'],
@@ -29,13 +30,26 @@ Class Announcement_Model extends CI_Model{
             'author'            =>  $this->session->user->email,
             'start_datetime'    =>  $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:s'),
             'end_datetime'      =>  $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:s'),
-            'slug'              =>  url_title($this->session->ann_create['title'],'-',TRUE).'-'.(new DateTime())->getTimestamp()
+            'slug'              =>  $ann_title.'-'.(new DateTime())->getTimestamp()
         );
         
+        //Finalize image uploading process
+        if(isset($this->session->ann_create['image'])){
+            $img = $this->session->ann_create['image'];
+            $ext = substr($img, strrpos($img, '.'));
+            $img = substr($ann_title, 0, 10).'-'.(new DateTime())->getTimestamp().$ext;
+
+            $data['image'] = $img;
+
+            rename('./uploads/tmp/'.$this->session->ann_create['image'], './uploads/ann_content/'.$img);
+        }else $data['image'] = NULL;
+
+        //Validate that the slug is unique
         if($slug == FALSE || strpos($slug, $data['slug']) === FALSE)
             $data['slug'] = self::unique_slug($data['slug']);
-        else if(strpos($slug, $data['slug']) !== FALSE)
-            $data['slug'] = $slug;
+        //NOTE: need to figure out what the below code does
+        /*else if(strpos($slug, $data['slug']) !== FALSE)
+            $data['slug'] = $slug;*/
             
         if($slug == FALSE)
             return $this->db->insert(self::TABLE_NAME, $data);
@@ -68,6 +82,9 @@ Class Announcement_Model extends CI_Model{
     
     public function rem_announcement($slug = FALSE){
         if($slug != FALSE){
+            $ann = self::get_announcement($slug);
+            unlink('./uploads/ann_content/'.$ann['image']);
+
             return $this->db->delete(self::TABLE_NAME, array('slug' => $slug));
         }
         return 0;

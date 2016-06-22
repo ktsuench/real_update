@@ -5,8 +5,13 @@
     echo validation_errors();
 
     //Beginning of Form
-    echo form_open($page_action); 
+    echo form_open_multipart($page_action); 
 //------------------------------------------------------------------------//
+        /*if(isset($this->session->ann_create)){
+            echo '<pre>';
+            print_r($this->session->ann_create);
+            echo '</pre>';
+        }*/
         /*if(isset($this->session->ann_create)){
             echo '<pre>';
             print_r($this->session->ann_create);
@@ -63,6 +68,15 @@
         }
         
         echo form_dropdown('type', $type_options, !empty($ann_type) ? $ann_type : $type_options['daily']).LINEBREAK;
+//------------------------------------------------------------------------//
+        //Announcement Type
+        echo form_label('Image', 'image').LINEBREAK;
+        
+        //Image Settings
+        $data = array(  'name'  =>  'image',
+                        'accept' => $image_file_types);
+
+        echo form_upload($data).LINEBREAK;
 //------------------------------------------------------------------------//
         //Submit Button
         if(!isset($this->session->ann_create) || empty($this->session->ann_create['schedule']['start']))
