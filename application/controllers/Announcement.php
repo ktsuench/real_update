@@ -50,78 +50,83 @@ class Announcement extends Navigation{
     }
 
     public function process_image_upload(){
-        $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+        try{
+            $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
 
-        $tmp_name = $_FILES["image"]["tmp_name"];
-        $name = basename($_FILES["image"]["name"]);
+            $tmp_name = $_FILES["image"]["tmp_name"];
+            $name = basename($_FILES["image"]["name"]);
 
-        //Error messages
-        if($err != UPLOAD_ERR_OK && ENVIRONMENT == 'development'){
-            switch($err){ 
-                case UPLOAD_ERR_INI_SIZE:
-                    $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
-                    break;
-                case UPLOAD_ERR_FORM_SIZE:
-                    $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
-                    break;
-                case UPLOAD_ERR_PARTIAL:
-                    $message = "The uploaded file was only partially uploaded";
-                    break;
-                case UPLOAD_ERR_NO_FILE:
-                    $message = "No file was uploaded";
-                    break;
-                case UPLOAD_ERR_NO_TMP_DIR:
-                    $message = "Missing a temporary folder";
-                    break;
-                case UPLOAD_ERR_CANT_WRITE:
-                    $message = "Failed to write file to disk";
-                    break;
-                case UPLOAD_ERR_EXTENSION:
-                    $message = "File upload stopped by extension";
-                    break;
-                default:
-                    $message = "Unknown upload error";
-                    break;
+            //Error messages
+            if($err != UPLOAD_ERR_OK && ENVIRONMENT == 'development'){
+                switch($err){ 
+                    case UPLOAD_ERR_INI_SIZE:
+                        $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+                        break;
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $message = "The uploaded file was only partially uploaded";
+                        break;
+                    case UPLOAD_ERR_NO_FILE:
+                        //$message = "No file was uploaded";
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $message = "Missing a temporary folder";
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $message = "Failed to write file to disk";
+                        break;
+                    case UPLOAD_ERR_EXTENSION:
+                        $message = "File upload stopped by extension";
+                        break;
+                    default:
+                        $message = "Unknown upload error";
+                        break;
+                }
+            }else if($err != UPLOAD_ERR_OK){
+                switch($err){ 
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $message = "Failed to upload image. Try selecting a smaller image.";
+                        break;
+                    case UPLOAD_ERR_NO_FILE:
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                    case UPLOAD_ERR_CANT_WRITE:
+                    case UPLOAD_ERR_EXTENSION:
+                        $message = "Failed to upload file. Try again later.";
+                        break;
+                    default:
+                        $message = "Unknown upload error";
+                        break;
+                }
             }
-        }else if($err != UPLOAD_ERR_OK){
-            switch($err){ 
-                case UPLOAD_ERR_INI_SIZE:
-                case UPLOAD_ERR_FORM_SIZE:
-                    $message = "Failed to upload image. Try selecting a smaller image.";
-                    break;
-                case UPLOAD_ERR_PARTIAL:
-                case UPLOAD_ERR_NO_FILE:
-                case UPLOAD_ERR_NO_TMP_DIR:
-                case UPLOAD_ERR_CANT_WRITE:
-                case UPLOAD_ERR_EXTENSION:
-                    $message = "Failed to upload file. Try again later.";
-                    break;
-                default:
-                    $message = "Unknown upload error";
-                    break;
-            }
+
+            $err = isset($message) ? 'Upload error. '.$message : $err;
+
+            if($err === UPLOAD_ERR_OK){
+                if(strpos($_FILES['image']['type'], 'image') === 0){
+                    if(move_uploaded_file($tmp_name, './uploads/tmp/'.$name)){
+                        //Update the temp files session variable for garbage collection later
+                        $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
+                        $tmp[] = $name;
+                        $this->session->temp_files = $tmp;
+
+                        //Store in session variable for later use
+                        $this->session->ann_img = $name;
+                    }else $upload_err = (ENVIRONMENT == 'development') ? 'Could not move uploaded file.' : $err;
+                }else $upload_err = 'Please upload a valid image file.';
+            }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
+
+            if(isset($upload_err)){
+                $this->form_validation->set_message('process_image_upload', $upload_err);
+                return FALSE;
+            }else return TRUE;
+        }catch(Exception $e){
+            if(ENVIRONMENT != 'production') throw $e;
         }
-
-        $err = 'Upload error. '.$message;
-
-        if($err == UPLOAD_ERR_OK){
-            if(strpos($_FILES['image']['type'], 'image') === 0){
-                if(move_uploaded_file($tmp_name, './uploads/tmp/'.$name)){
-                    //Update the temp files session variable for garbage collection later
-                    $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
-                    $tmp[] = $name;
-                    $this->session->temp_files = $tmp;
-
-                    //Store in session variable for later use
-                    $this->session->ann_img = $name;
-                }else $upload_err = (ENVIRONMENT == 'development') ? 'Could not move uploaded file.' : $err;
-            }else $upload_err = 'Please upload a valid image file.';
-        }else $upload_err = $err;
-
-        if(isset($upload_err)){
-            $this->form_validation->set_message('process_image_upload', $upload_err);
-            return FALSE;
-        }else return TRUE;
     }
 
     //Template for Create and Update Methods
@@ -578,7 +583,11 @@ class Announcement extends Navigation{
 
             if(isset($announcement)){
                 foreach($announcement as $a){
-                    $info_req[] = (object) array('title' => $a['title'], 'content' => $a['content']);
+                    $info_req[] = (object) array(
+                        'title'     =>  $a['title'],
+                        'content'   =>  $a['content'],
+                        'image'     =>  $a['image']
+                    );
                 }
             }
             echo json_encode($info_req, JSON_PRETTY_PRINT);
@@ -608,6 +617,7 @@ class Announcement extends Navigation{
         $data['announcement'] = $this->announcement_model->get_announcement_display();
         $data['title'] = 'Riverdale Collegiate Institute Announcements Display';
         $data['stylesheet'][] = 'ann_disp.css';
+        $data['upload_path'] = base_url().'uploads/ann_content/';
 
         //Do not display the copyright in footer template file
         $data['do_not_display'] = TRUE;

@@ -58,6 +58,21 @@ body{
 .side-content{
     background-color:white;
 }
+.content{
+    padding:5px;
+}
+.content-title{
+    font-size:3em;
+}
+.content-material{
+    font-size:2em;
+}
+.content-img-width{
+    width:100%;
+}
+.content-img-height{
+    height:50vh;
+}
 #datestime-weather{
     margin-bottom:5px;
 }

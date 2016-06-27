@@ -8,7 +8,7 @@
 var container_classname = 'scroll-content-parent';
 var wrapper_classname = 'scroll-content';
 var content_classname = 'flex-panel';
-var content_element_classnames = ['flex flex-col flex-center', 'content'];
+var content_element_classnames = ['flex flex-col flex-center', 'content', ['content-title', 'content-material', 'content-img']];
 
 /**
  * Collection of timers set to control scroll speed.
@@ -63,7 +63,7 @@ function scroll_start(frame){
             var i = 0;
 
             wrappers.forEach( function(wrapper, index) {
-                if(wrapper.getAttribute('class').indexOf(wrapper_classname) > -1){
+                if(wrapper.classList.contains(wrapper_classname)){
                     //Need to get container width so that all content panels are the size of the container.
                     var container_width = container.getAttribute('style');
                     var style_property = 'width:';
@@ -79,8 +79,20 @@ function scroll_start(frame){
 
                     if(contents.length > 0){
                         contents.forEach( function(content, index) {
-                            if(content.getAttribute('class').indexOf(content_classname) > -1){
-                                content.setAttribute('style', 'width:' + (container_width - 1) + 'px;'); //' height:' + window.getComputedStyle(parent_frame).getPropertyValue('height'));
+                            if(content.classList.contains(content_classname)){
+                                content.setAttribute('style', 'width:' + (container_width - 1) + 'px;');
+
+                                var el = content.children[0].children[0].children;
+                                el = el[el.length - 1];
+                                //Check that the last element in the content container is an image tag
+                                if(el.tagName.search(/img/i) > -1){
+                                    //Size down image if it is greater than the width/height of the container
+                                    if(parseInt(el.width) > parseInt(content.style.width) && parseInt(el.width) > parseInt(el.height)){
+                                        el.classList.add(content_element_classnames[2][2] + '-width');
+                                    }else if(parseInt(el.height) > parseInt(content.clientHeight)){
+                                        el.classList.add(content_element_classnames[2][2] + '-height');
+                                    }
+                                }
                                 i++;
                             }
                         });
@@ -108,6 +120,8 @@ function scroll_start(frame){
                                 wrapper.setAttribute('style', 'width:' + wrapper_width + 'px; left:' + wrapper_position + 'px;');
                             }, discontinuous === true ? speed : 70));
                         }
+
+                        console.log('Updated timers @ ' + (new Date()));
                     }else{
                         console.log('Failed to load content for ' + container.getAttribute('id') + '.');
                     }
@@ -147,17 +161,27 @@ function update_start(class_name){
 
                     hooks.forEach( function(hook, index) {
                         //Set up the template of the panels
-                        var title = document.createElement('H4');
+                        var title = document.createElement('DIV');
                         var content = document.createElement('DIV');
+                        var image = document.createElement('IMG');
                         var container = {
                             'top': document.createElement('DIV'),
                             'mid': document.createElement('DIV'),
                             'bot': document.createElement('DIV') 
                         };
 
-                        container.top.setAttribute('class', content_classname);
-                        container.mid.setAttribute('class', content_element_classnames[0]);
-                        container.bot.setAttribute('class', content_element_classnames[1]);
+                        title.classList.add(content_element_classnames[2][0]);
+                        content.classList.add(content_element_classnames[2][1]);
+                        container.top.classList.add(content_classname);
+
+                        //Add class names to the containers
+                        ['mid', 'bot'].forEach( function(box, index) {
+                            if(content_element_classnames[index].split(' ').length > 1){
+                                content_element_classnames[index].split(' ').forEach( function(cls, index) {
+                                    container[box].classList.add(cls);
+                                });
+                            }else container[box].classList.add(content_element_classnames[index]);
+                        });
 
                         hook.innerHTML = '';
 
@@ -166,9 +190,11 @@ function update_start(class_name){
                             //Replace the current content
                             for(var item in data){
                                 title.innerHTML = data[item].title;
+                                image.src = data[item].image !== null ? upload_path + data[item].image : '';
                                 content.innerHTML = data[item].content;
 
                                 container.bot.innerHTML = title.outerHTML + content.outerHTML;
+                                container.bot.innerHTML += image.src != window.location.href && image.src.length > 0 ? image.outerHTML : '';
                                 container.mid.innerHTML = container.bot.outerHTML;
                                 container.top.innerHTML = container.mid.outerHTML;
 
@@ -186,15 +212,17 @@ function update_start(class_name){
                             hook.innerHTML += container.top.outerHTML;
                         }
 
-                        //Reset all the scroll timers that are running
-                        reset_scroll_timers();
-
                         //Check that there is content to be displayed
                         if(Object.keys(data).length > 0){
                             //Set up data order for the next panel
                             data.push(data.shift());
                         }
                     });
+
+                    //Reset all the scroll timers that are running
+                    reset_scroll_timers();
+
+                    console.log('Updated content @ ' + (new Date()));
                 }else console.log('Error updating display. Server Error: ' + xhr.status);
             }
         }
@@ -249,6 +277,8 @@ function refresh_weather(id){
                 weather_temp = '<span style="margin-left:0.3em;">' + data.main.temp + '<i class="wi wi-celsius"></i></span>';
                 weather_desc = '<span style="text-transform:capitalize;">' + data.weather[0].description + '</span>';
                 weather_container.innerHTML = '<div>' + weather_icon + weather_temp + '</div>' + weather_desc;
+
+                console.log('Updated weather @ ' + (new Date()))
             }else console.log('Error updating weather. Server Error: ' + xhr.status);
         }
     }
@@ -258,8 +288,8 @@ function refresh_weather(id){
 }
 
 //Datetime constants
-var monthNames = [ 'Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec' ];
-var dayNames = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+var month_names = [ 'Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec' ];
+var day_names = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
 
 /**
  * Updates the date on the display
@@ -273,7 +303,7 @@ function retrieve_date(id){
     nd.setDate(nd.getDate());
     // Output the day, date, month and year
     var clock_date = document.getElementById(id);
-    clock_date.innerHTML = dayNames[nd.getDay()] + ", " + nd.getDate() + " " + monthNames[nd.getMonth()] + ", " + nd.getFullYear();
+    clock_date.innerHTML = day_names[nd.getDay()] + ", " + nd.getDate() + " " + month_names[nd.getMonth()] + ", " + nd.getFullYear();
 }
 
 /**
@@ -320,7 +350,7 @@ function initialize_display(){
     refresh_weather('weather');
     window.setTimeout(function(){
         window.setInterval(function(){refresh_weather('weather')}, 1000 * 60 * 10);
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 30);
 
     //Start the scrolling content containers
     scroll_start('display');
@@ -331,7 +361,7 @@ function initialize_display(){
     window.setTimeout(function(){
         window.setInterval(function(){
             update_start('scroll-content');
-        }, 1000 * 60 * 15)
+        }, 1000 * 60 * 15);
     }, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
 
     //Refresh Display on Window Resize
