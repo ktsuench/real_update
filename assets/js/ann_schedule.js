@@ -1,4 +1,6 @@
 'use strict';
+var selected_class = 'selected';
+
 //JavaScript for changing Calendar Year & Month
 function jump_to_date(y, m){
     var xhr = new XMLHttpRequest();
@@ -21,7 +23,7 @@ function jump_to_date(y, m){
                 if(parseInt(y) != parseInt(now.getFullYear()) || parseInt(m) != parseInt(now.getMonth() + 1)){
                     date_field.value = '1';
                     var first_day = document.getElementById('cal_day_1');
-                    first_day.className += ' selected';
+                    first_day.classList.add(selected_class);
                     _selected_date = first_day;
                 }else{
                     date_field.value = now.getDate();
@@ -68,13 +70,11 @@ function attach_date_event(){
             date_arr[date].onclick = function(){
                 var date_field = document.getElementById('date');
                 var prev_date_selected = _selected_date;
-                var cls = prev_date_selected.className.split(' ');
-                
-                cls.splice(cls.length-1);
-                prev_date_selected.className = cls.join(' ');
+
+                prev_date_selected.classList.remove(selected_class);
                 
                 date_field.value = this.innerHTML;
-                this.className += ' selected';
+                this.classList.add(selected_class);
                 _selected_date = document.getElementById('cal_day_' + date_field.value);
             }
         }
@@ -87,22 +87,22 @@ attach_date_event();
 var date_field = document.getElementById('date');
 var date_selected = document.getElementById('cal_day_' + date_field.value);
 
-date_selected.className += ' selected';
+date_selected.classList.add(selected_class);
 
-//Remove the today selected date
+//Remove the default selected date (today) to allow the user set date to be the only one selected
 var year_field = document.getElementById('year');
 var month_field = document.getElementById('month');
 var y = parseInt(year_field.value);
 var m = parseInt(month_field.value);
 var now = new Date();
 
-if(y == parseInt(now.getFullYear()) && m == parseInt(now.getMonth() + 1)){
+//Check that the user set date is not the default selected date before removing selected class
+if(y == parseInt(now.getFullYear()) && m == parseInt(now.getMonth() + 1) && date_field.value != now.getDate()){
     var rm_date_selected = document.getElementById('cal_day_' + now.getDate());
-    var cls = rm_date_selected.className.split(' ');
 
-    cls.splice(cls.length-1);
-    rm_date_selected.className = cls.join(' ');
+    rm_date_selected.classList.remove(selected_class);
 }
+
 
 //Used to prevent failure of js script if DOM is modified by user
 //Note: will fail if the script is altered
