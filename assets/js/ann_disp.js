@@ -82,15 +82,27 @@ function scroll_start(frame){
                             if(content.classList.contains(content_classname)){
                                 content.setAttribute('style', 'width:' + (container_width - 1) + 'px;');
 
-                                var el = content.children[0].children[0].children;
-                                el = el[el.length - 1];
+
+                                var el = Array.from(content.querySelector('.'+content_element_classnames[1]).children);
+                                var content_height = 0;
+                                var img;
+
+                                //Calculate the total heigh of the content
+                                el.forEach( function(e, index) {
+                                    if(e.tagName.search(/img/i) > -1) img = e;
+                                    content_height += parseInt(e.clientHeight);
+                                });
+
                                 //Check that the last element in the content container is an image tag
-                                if(el.tagName.search(/img/i) > -1){
-                                    //Size down image if it is greater than the width/height of the container
-                                    if(parseInt(el.width) > parseInt(content.style.width) && parseInt(el.width) > parseInt(el.height)){
-                                        el.classList.add(content_element_classnames[2][2] + '-width');
-                                    }else if(parseInt(el.height) > parseInt(content.clientHeight)){
-                                        el.classList.add(content_element_classnames[2][2] + '-height');
+                                if(img !== undefined && img.tagName.search(/img/i) > -1){
+                                    //Decrease the width of the image if it is greater than the width of the container
+                                    if(parseInt(img.width) > parseInt(content.style.width) && 
+                                        parseInt(img.width) > parseInt(img.height)){
+                                        img.classList.add(content_element_classnames[2][2] + '-width');
+                                    //Decrease the height of the image if its height combined with the
+                                    //rest of the content is greater than the height of the container
+                                    }else if(content_height > parseInt(content.clientHeight)){
+                                        img.classList.add(content_element_classnames[2][2] + '-height');
                                     }
                                 }
                                 i++;
@@ -193,8 +205,10 @@ function update_start(class_name){
                                 image.src = data[item].image !== null ? upload_path + data[item].image : '';
                                 content.innerHTML = data[item].content;
 
+                                var image_exists = window.location.href && image.src.length;
+
                                 container.bot.innerHTML = title.outerHTML + content.outerHTML;
-                                container.bot.innerHTML += image.src != window.location.href && image.src.length > 0 ? image.outerHTML : '';
+                                container.bot.innerHTML += image.src != !image_exists > 0 ? image.outerHTML : '';
                                 container.mid.innerHTML = container.bot.outerHTML;
                                 container.top.innerHTML = container.mid.outerHTML;
 
@@ -303,7 +317,8 @@ function retrieve_date(id){
     nd.setDate(nd.getDate());
     // Output the day, date, month and year
     var clock_date = document.getElementById(id);
-    clock_date.innerHTML = day_names[nd.getDay()] + ", " + nd.getDate() + " " + month_names[nd.getMonth()] + ", " + nd.getFullYear();
+    clock_date.innerHTML = day_names[nd.getDay()] + ", " + nd.getDate();
+    clock_date.innerHTML += " " + month_names[nd.getMonth()] + ", " + nd.getFullYear();
 }
 
 /**
@@ -330,7 +345,7 @@ function retrieve_time(h,m,s,mer){
     clock_hour.innerHTML = ((hours > 12 ? hours - 12 : hours) < 10 ? "0" : "" ) + (hours > 12 ? hours - 12 : hours);
     clock_meridian.innerHTML = (hours > 12 ? "PM" : "AM");
 
-    if(hours===24){retrieve_date();}
+    if(hours===24){retrieve_date('date');}
 }
 
 //setInterval reference object
