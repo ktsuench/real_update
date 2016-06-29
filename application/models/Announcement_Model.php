@@ -37,12 +37,19 @@ Class Announcement_Model extends CI_Model{
         if(isset($this->session->ann_create['image'])){
             $img = $this->session->ann_create['image'];
             $ext = substr($img, strrpos($img, '.'));
-            $img = substr($ann_title, 0, 10).'-'.(new DateTime())->getTimestamp().$ext;
+            $img = $ann_title.'-'.(new DateTime())->getTimestamp().$ext;
 
             $data['image'] = $img;
 
             rename('./uploads/tmp/'.$this->session->ann_create['image'], './uploads/ann_content/'.$img);
         }else $data['image'] = NULL;
+
+        //Remove the existing image file if there is one
+        if($slug != FALSE && ($ann = self::get_announcement($slug)).image !== NULL){
+            if(isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']){
+                unlink('./uploads/ann_content/'.$ann['image']);
+            }else unlink('./uploads/ann_content/'.$ann['image']);
+        }
 
         //Validate that the slug is unique
         if($slug == FALSE || strpos($slug, $data['slug']) === FALSE)
@@ -134,6 +141,7 @@ Class Announcement_Model extends CI_Model{
         
         $query = $this->db->get_where(self::TABLE_NAME, $where);
         
+        //For debugging and logging purposes
         if(ENVIRONMENT == 'development' || ENVIRONMENT == 'testing'){
             $this->load->helper('path');
             
