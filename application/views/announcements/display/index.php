@@ -45,6 +45,7 @@
             <?php 
                 if(!empty($announcement)){
                     $announcement[] = array_shift($announcement);
+                    $announcement = array_reverse($announcement);
                     build_slider($announcement, $upload_path);
                 }else default_slide();
             ?>
