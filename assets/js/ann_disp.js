@@ -169,6 +169,7 @@ function update_start(class_name){
                     if(Object.keys(data).length > 0){
                         data = Object.keys(data).map(function(key){return data[key];});
                         data = data.reverse();
+                        data.unshift(data.pop())
                     }
 
                     hooks.forEach( function(hook, index) {
@@ -234,7 +235,9 @@ function update_start(class_name){
                     });
 
                     //Reset all the scroll timers that are running
-                    reset_scroll_timers();
+                    window.setTimeout(function(){
+                        reset_scroll_timers();
+                    }, 125);
 
                     console.log('Updated content @ ' + (new Date()));
                 }else console.log('Error updating display. Server Error: ' + xhr.status);
@@ -317,8 +320,8 @@ function retrieve_date(id){
     nd.setDate(nd.getDate());
     // Output the day, date, month and year
     var clock_date = document.getElementById(id);
-    clock_date.innerHTML = day_names[nd.getDay()] + ", " + nd.getDate();
-    clock_date.innerHTML += " " + month_names[nd.getMonth()] + ", " + nd.getFullYear();
+    clock_date.innerHTML = day_names[nd.getDay()] + ", " + month_names[nd.getMonth()];
+    clock_date.innerHTML += " " + nd.getDate() + ", " + nd.getFullYear();
 }
 
 /**
@@ -364,7 +367,8 @@ function initialize_display(){
     //Start the weather update process of the display
     refresh_weather('weather');
     window.setTimeout(function(){
-        window.setInterval(function(){refresh_weather('weather')}, 1000 * 60 * 10);
+        refresh_weather('weather');
+        window.setInterval(function(){refresh_weather('weather')}, 1000 * 60 * 30);
     }, 1000 * 60 * 30);
 
     //Start the scrolling content containers
@@ -374,10 +378,12 @@ function initialize_display(){
     //TODO: If failed to update display due to internet connection, check again when internet is available
     var ref_time = new Date();
     window.setTimeout(function(){
+        update_start('scroll-content');
         window.setInterval(function(){
             update_start('scroll-content');
         }, 1000 * 60 * 15);
-    }, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 1000 + ref_time.getMilliseconds());
+        console.log('Started the update interval @ ' + (new Date()))
+    }, (15 - ref_time.getMinutes() % 15) * 60 * 1000 + ref_time.getSeconds() * 60);
 
     //Refresh Display on Window Resize
     window.addEventListener('resize', function(e){
