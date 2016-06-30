@@ -5,13 +5,8 @@
     echo validation_errors();
 
     //Beginning of Form
-    echo form_open_multipart($page_action); 
+    echo form_open_multipart($page_action);
 //------------------------------------------------------------------------//
-        /*if(isset($this->session->ann_create)){
-            echo '<pre>';
-            print_r($this->session->ann_create);
-            echo '</pre>';
-        }*/
         /*if(isset($this->session->ann_create)){
             echo '<pre>';
             print_r($this->session->ann_create);
@@ -73,8 +68,27 @@
         echo form_label('Image', 'image').LINEBREAK;
         
         //Image Settings
-        $data = array(  'name'  =>  'image',
-                        'accept' => $image_file_types);
+        {
+            $data = array(  'name'  =>  'image',
+                            'accept' => $image_file_types);
+
+            if(empty($ann_img) && isset($ann_data) && property_exists($ann_data, 'image')){
+                if(isset($ann_data->image)) $ann_img = $upload_path.$ann_data->image;
+            }
+            if(empty($ann_img) && !empty($this->session->ann_create['image'])){
+                $ann_img = $upload_path_temp.$this->session->ann_create['image'];
+            }
+            if(!empty($ann_img)){
+                $img = '<img src="'.$ann_img.'" style="height:20vh;">';
+            }
+        }
+
+        if(empty($ann_img)){
+            echo 'None'.LINEBREAK;
+        }else{
+            echo $img.LINEBREAK;
+            echo form_checkbox('remove_image', 1, FALSE).'Remove Image'.LINEBREAK;
+        }
 
         echo form_upload($data).LINEBREAK;
 //------------------------------------------------------------------------//
