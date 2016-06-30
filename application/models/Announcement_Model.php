@@ -61,6 +61,11 @@ Class Announcement_Model extends CI_Model{
                 $data['image'] = $img;
 
                 rename(self::$upload_path_temp.$this->session->ann_create['image'], self::$upload_path.$img);
+
+                //Remove image from temp file collection
+                $tmp = $this->session->temp_files;
+                unset($tmp[$this->session->ann_create['image']]);
+                $this->session->temp_files = $tmp;
             }
         }else if($slug == FALSE || $remove_image == TRUE)
             $data['image'] = NULL; 
