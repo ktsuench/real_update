@@ -4,9 +4,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require_once 'Navigation.php';
 
 class Announcement extends Navigation{
+    const TMP_UPLOAD_PATH = './uploads/tmp/';
+
+    protected static $upload_path;
+    protected static $upload_path_temp;
+
     public function __construct(){
         parent::__construct();
         $this->load->model('announcement_model');
+
+        self::$upload_path = base_url().'uploads/ann_content/';
+        self::$upload_path_temp = base_url().'uploads/tmp/';
     }
     
     //TODO: move the session var dumping into construct
@@ -53,8 +61,8 @@ class Announcement extends Navigation{
         try{
             $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
 
-            $tmp_name = $_FILES["image"]["tmp_name"];
-            $name = basename($_FILES["image"]["name"]);
+            $tmp_name = $_FILES['image']['tmp_name'];
+            $name = basename($_FILES['image']['name']);
 
             //Error messages
             if($err != UPLOAD_ERR_OK && ENVIRONMENT == 'development'){
@@ -108,7 +116,7 @@ class Announcement extends Navigation{
 
             if($err === UPLOAD_ERR_OK){
                 if(strpos($_FILES['image']['type'], 'image') === 0){
-                    if(move_uploaded_file($tmp_name, './uploads/tmp/'.$name)){
+                    if(move_uploaded_file($tmp_name, self::TMP_UPLOAD_PATH.$name)){
                         //Update the temp files session variable for garbage collection later
                         $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
                         $tmp[] = $name;
@@ -132,8 +140,11 @@ class Announcement extends Navigation{
     //Template for Create and Update Methods
     protected function create_template($settings, $op, $slug = FALSE){
         $data = $settings;
+        $data['upload_path'] = self::$upload_path;
+        $data['upload_path_temp'] = self::$upload_path_temp;
         
         //Array List of Types
+        //TODO: Put this in the settings page so that it can be changed by admins
         $data['type_options'] = array(  'daily'     =>  'Daily',
                                         'important' =>  'Important',
                                         'meeting'   =>  'Meeting',
@@ -155,7 +166,7 @@ class Announcement extends Navigation{
             array(
                 'field' =>  'content',
                 'label' =>  'Content',
-                'rules' =>  array('required', 'max_length[75]')
+                'rules' =>  array('required', 'max_length[150]')
             ),
             array(
                 'field' =>  'type',
@@ -183,10 +194,33 @@ class Announcement extends Navigation{
                 )
             );
 
+            //Check if existing image is to be removed
+            if($this->input->post('remove_image') !== NULL && boolval($this->input->post('remove_image')) == TRUE){
+                $remove_image = TRUE;
+            }else $remove_image = FALSE;
+
+            //Set image if there is one
             if(isset($this->session->ann_img)){
                 $create['image'] = $this->session->ann_img;
+
                 unset($_SESSION['ann_img']);
-            }else if(isset($create['image'])) unset($create['image']);
+            }else if($remove_image == TRUE){
+                    if(isset($create['image'])) unset($create['image']);
+            }else if(isset($this->session->ann_create['image'])){
+                    $create['image'] = $this->session->ann_create['image'];
+            }else if(!empty($data['ann_data'])){
+                    $create['image'] = $data['ann_data']->image;
+            }
+
+            //Clean up image directories
+            if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $create['image']) || $remove_image){
+                unlink(self::TMP_UPLOAD_PATH.$this->session->ann_create['image']);
+                
+                //Remove image file from garbage collection
+                $tmp = $this->session->temp_files;
+                unset($tmp[$this->session->ann_create['image']]);
+                $this->session->temp_files = $tmp;
+            }
 
             foreach($this->input->post() as $key => $val) $create[$key] = $val;
             
@@ -617,7 +651,7 @@ class Announcement extends Navigation{
         $data['announcement'] = $this->announcement_model->get_announcement_display();
         $data['title'] = 'Riverdale Collegiate Institute Announcements Display';
         $data['stylesheet'][] = 'ann_disp.css';
-        $data['upload_path'] = base_url().'uploads/ann_content/';
+        $data['upload_path'] = self::$upload_path;
 
         //Do not display the copyright in footer template file
         $data['do_not_display'] = TRUE;

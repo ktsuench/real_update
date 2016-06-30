@@ -3,10 +3,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 Class Announcement_Model extends CI_Model{
     const TABLE_NAME = 'real_update_ann';
+
+    protected static $upload_path;
+    protected static $upload_path_temp;
     
     public function __construct(){
         parent::__construct();
         $this->load->database();
+
+        self::$upload_path = './uploads/ann_content/';
+        self::$upload_path_temp = './uploads/tmp/';
     }
     
     public function get_announcement($slug = FALSE){
@@ -33,22 +39,37 @@ Class Announcement_Model extends CI_Model{
             'slug'              =>  $ann_title.'-'.(new DateTime())->getTimestamp()
         );
         
+        if($slug != FALSE) $ann = self::get_announcement($slug);
+
+        //Check if image info needs to be updated
+        if($slug != FALSE && ($ann['image'] === NULL || ($ann['image'] !== NULL && $this->session->ann_create['image'] != $ann['image']))){
+            $update_image = TRUE;
+        }else $update_image = FALSE;
+
+        //Check if existing image is to be removed
+        if(isset($this->session->ann_create['remove_image']) && boolval($this->session->ann_create['remove_image']) == TRUE){
+            $remove_image = TRUE;
+        }else $remove_image = FALSE;
+
         //Finalize image uploading process
-        if(isset($this->session->ann_create['image'])){
-            $img = $this->session->ann_create['image'];
-            $ext = substr($img, strrpos($img, '.'));
-            $img = $ann_title.'-'.(new DateTime())->getTimestamp().$ext;
+        if(isset($this->session->ann_create['image']) && $remove_image == FALSE){
+            if($slug == FALSE || $update_image == TRUE){
+                $img = $this->session->ann_create['image'];
+                $ext = substr($img, strrpos($img, '.'));
+                $img = $ann_title.'-'.(new DateTime())->getTimestamp().$ext;
 
-            $data['image'] = $img;
+                $data['image'] = $img;
 
-            rename('./uploads/tmp/'.$this->session->ann_create['image'], './uploads/ann_content/'.$img);
-        }else $data['image'] = NULL;
+                rename(self::$upload_path_temp.$this->session->ann_create['image'], self::$upload_path.$img);
+            }
+        }else if($slug == FALSE || $remove_image == TRUE)
+            $data['image'] = NULL; 
 
         //Remove the existing image file if there is one
-        if($slug != FALSE && ($ann = self::get_announcement($slug)).image !== NULL){
-            if(isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']){
-                unlink('./uploads/ann_content/'.$ann['image']);
-            }else unlink('./uploads/ann_content/'.$ann['image']);
+        if($slug != FALSE && $ann['image'] !== NULL){
+            if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']) || $remove_image == TRUE){
+                unlink(self::$upload_path.$ann['image']);
+            }
         }
 
         //Validate that the slug is unique
