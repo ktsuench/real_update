@@ -1,86 +1,86 @@
 *{
-    margin:0;
-    padding:0;
+    margin: 0;
+    padding: 0;
 }
 body{
-    background-color:black;
+    background-color: black;
 }
 #school{
-    color:white;
-    text-align:center;
+    color: white;
+    text-align: center;
     margin: 5px 0;
 }
 .center{
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 .flex{
-    display:flex;
-    flex-wrap:nowrap;
-    justify-content:space-around;
-    align-items:stretch;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: stretch;
 }
 .flex-container{
-    width:99vw;
-    height:93vh;
+    width: 99vw;
+    height: 93vh;
 }
 .flex-row{
-    flex-direction:row;
+    flex-direction: row;
 }
 .flex-col{
-    flex-direction:column;
+    flex-direction: column;
 }
 .flex-col-child{
-    background-color:white;
+    background-color: white;
 }
 .scroll-content-parent{
-    overflow:hidden;
-    position:relative;
-    left:0;
+    overflow: hidden;
+    position: relative;
+    left: 0;
 }
 .scroll-content{
-    overflow:hidden;
-    position:relative;
-    transition:left 0.5s;
-    background-color:white;
-    height:100%;
+    overflow: hidden;
+    position: relative;
+    transition: left 0.5s;
+    background-color: white;
+    height: 100%;
 }
 .flex-panel{
-    overflow:hidden;
-    float:left;
-    position:relative;
-    height:100%;
+    overflow: hidden;
+    float: left;
+    position: relative;
+    height: 100%;
 }
 .flex-center{
-    height:100%;
-    text-align:center;
+    height: 100%;
+    text-align: center;
 }
 .side-content{
-    background-color:white;
+    background-color: white;
 }
 .content{
-    padding:5px;
+    padding: 5px;
 }
 .content-title{
-    font-size:3em;
+    font-size: 3em;
 }
 .content-material{
-    font-size:2em;
+    font-size: 2em;
 }
 .content-img-width{
-    width:100%;
+    width: 100%;
 }
 .content-img-height{
-    height:50vh;
+    height: 50vh;
 }
 #datestime-weather{
-    margin-bottom:5px;
+    margin-bottom: 5px;
 }
 #date, #time, #weather{
-    font-size:3em;
+    font-size: 3em;
 }
 #img-vid-slideshow{
-    margin-top:5px;
+    margin-top: 5px;
 }
-.clearfix{clear:both;}
-.text-center{text-align:center;}
+.clearfix{clear: both;}
+.text-center{text-align: center;}
