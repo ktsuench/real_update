@@ -19,8 +19,10 @@
         //Title Settings
         {
             $data = array(  'type'          =>  'text',
+                            'id'            =>  'title',
                             'name'          =>  'title',
                             'placeholder'   =>  'Ex. Exam Season Coming Up',
+                            'maxlength'     =>  $title_max_length,
                             'autocomplete'  =>  'off');
                             
             if(empty($ann_title)) $ann_title = $this->input->post('title');
@@ -31,16 +33,19 @@
         }
         
         echo form_input($data).LINEBREAK;
+        echo '<span id="title_ch_count"></span>'.LINEBREAK;
 //------------------------------------------------------------------------//
         //Article content
         echo form_label('Content', 'content').LINEBREAK;
         
         //Content Settings
         {
-            $data = array(  'name'          =>  'content',
+            $data = array(  'id'            =>  'content',
+                            'name'          =>  'content',
                             'placeholder'   =>  'Ex. Rest up because exams are coming soon!',
                             'rows'          =>  '5',
                             'cols'          =>  '40',
+                            'maxlength'     =>  $content_max_length,
                             'autocomplete'  =>  'off');
                             
             if(empty($ann_content)) $ann_content = $this->input->post('content');
@@ -50,6 +55,7 @@
         }
         
         echo form_textarea($data, !empty($ann_content) ? $ann_content : '').LINEBREAK;
+        echo '<span id="content_ch_count"></span>'.LINEBREAK;
 //------------------------------------------------------------------------//
         //Announcement Type
         echo form_label('Type', 'type').LINEBREAK;
@@ -105,3 +111,21 @@
     $link_content = 'Back to Announcement List';
     echo anchor(base_url('announcement'), $link_content, 'title="'.$link_content.'"');
 ?>
+<link rel='stylesheet' type='text/css' href='<?php echo base_url().'assets/vendor/text_counter/css/text-counter.css'; ?>'>
+<script src='<?php echo base_url().'assets/vendor/text_counter/js/text-counter.js'; ?>'></script>
+<script>
+    [
+        {
+            'field':        document.getElementById('title'),
+            'counter':      document.getElementById('title_ch_count'),
+            'max_length':   <?php echo $title_max_length; ?>,
+        },
+        {
+            'field':        document.getElementById('content'),
+            'counter':      document.getElementById('content_ch_count'),
+            'max_length':   <?php echo $content_max_length; ?>,
+        }
+    ].forEach( function(e, index) {
+        text_counter(e.field, e.counter, e.max_length);
+    });
+</script>

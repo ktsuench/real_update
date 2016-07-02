@@ -143,6 +143,9 @@ class Announcement extends Navigation{
         $data['upload_path'] = self::$upload_path;
         $data['upload_path_temp'] = self::$upload_path_temp;
         
+        $data['title_max_length'] = 50;
+        $data['content_max_length'] = 150;
+
         //Array List of Types
         //TODO: Put this in the settings page so that it can be changed by admins
         $data['type_options'] = array(  'daily'     =>  'Daily',
@@ -161,12 +164,12 @@ class Announcement extends Navigation{
             array(
                 'field' =>  'title',
                 'label' =>  'Title',
-                'rules' =>  array('required', 'max_length[50]')
+                'rules' =>  array('required', 'max_length['.$data['title_max_length'].']')
             ),
             array(
                 'field' =>  'content',
                 'label' =>  'Content',
-                'rules' =>  array('required', 'max_length[150]')
+                'rules' =>  array('required', 'max_length['.$data['content_max_length'].']')
             ),
             array(
                 'field' =>  'type',
