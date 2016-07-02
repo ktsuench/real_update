@@ -28,12 +28,15 @@ Class Announcement_Model extends CI_Model{
     }
     
     public function set_announcement($slug = FALSE){
+        //TODO: put the constants in a constant file so that it can be used here too
+        $ann_verified = $this->session->user->type == 'admin' ? 1 : 0;
         $ann_title = url_title($this->session->ann_create['title'],'-',TRUE);
         $data = array(
             'title'             =>  $this->session->ann_create['title'],
             'content'           =>  $this->session->ann_create['content'],
             'type'              =>  $this->session->ann_create['type'],
             'author'            =>  $this->session->user->email,
+            'verified'          =>  $ann_verified,
             'start_datetime'    =>  $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:s'),
             'end_datetime'      =>  $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:s'),
             'slug'              =>  $ann_title.'-'.(new DateTime())->getTimestamp()
@@ -113,6 +116,17 @@ Class Announcement_Model extends CI_Model{
         }
     }
     
+    public function verify_announcement($slug = FALSE, $status = 0){
+        if($slug != FALSE){
+            $data = array(
+                'verified' =>   $status ? 0 : 1
+            );
+
+            return $this->db->update(self::TABLE_NAME, $data, array('slug' => $slug));
+        }
+        return 0;
+    }
+
     public function rem_announcement($slug = FALSE){
         if($slug != FALSE){
             $ann = self::get_announcement($slug);
@@ -158,7 +172,8 @@ Class Announcement_Model extends CI_Model{
         
         $this->db->order_by('title ASC, start_datetime ASC');
         
-        $where = '(start_datetime BETWEEN "1990-01-01 00:00" AND "'.$now->format('Y-m-d H:i').'")';
+        $where = '(verified = 1)';
+        $where .= ' AND (start_datetime BETWEEN "1990-01-01 00:00" AND "'.$now->format('Y-m-d H:i').'")';
 
         //Set time to be 5 minutes ahead so that announcements end at correct times
         $now->setTime(intval($now->format('H')), intval($now->format('i')) + 5);

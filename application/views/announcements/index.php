@@ -16,10 +16,11 @@
               <th>End Date &amp; Time</th>
               <th></th>
               <th></th>
+              <th></th>
             </tr>
         </thead>
         <tbody>
-    <?php foreach ($announcement as $a){ ?>
+          <?php foreach ($announcement as $a){ ?>
             <tr>
                 <td><?php echo $a['title']; ?></td>
                 <td><?php echo $a['content']; ?></td>
@@ -27,13 +28,17 @@
                 <td><?php echo $a['start_datetime']; ?></td>
                 <td><?php echo $a['end_datetime']; ?></td>
                 <td>
-                    <a href="<?php echo base_url('announcement/update/'.$a['slug']); ?>">Update announcement</a>
+                  <?php $word = $a['verified'] ? 'Invalidate' : 'Validate'; ?>
+                  <a href="<?php echo base_url('announcement/verify/'.$a['slug'].'/'.$a['verified']); ?>"><?php echo $word; ?> announcement</a>
                 </td>
                 <td>
-                    <a href="<?php echo base_url('announcement/delete/'.$a['slug']); ?>">Delete announcement</a>
+                  <a href="<?php echo base_url('announcement/update/'.$a['slug']); ?>">Update announcement</a>
+                </td>
+                <td>
+                  <a href="<?php echo base_url('announcement/delete/'.$a['slug']); ?>">Delete announcement</a>
                 </td>
             </tr>
-    <?php } ?>
+          <?php } ?>
         </tbody>
     </table>
 <?php }else{ ?>

@@ -5,9 +5,10 @@ class Navigation extends CI_Controller{
     //TODO: Place constants in a config file
     const OP_CREATE = 0;
     const OP_UPDATE = 1;
-    const OP_DELETE = 2;
-    const OP_CREATE_BATCH = 3;
-    const OP_DELETE_ALL = 4;
+    const OP_VERIFY = 2;
+    const OP_DELETE = 3;
+    const OP_CREATE_BATCH = 4;
+    const OP_DELETE_ALL = 5;
     const GUEST = 'guest';
     const ADMIN = 'admin';
     

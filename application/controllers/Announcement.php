@@ -40,6 +40,9 @@ class Announcement extends Navigation{
             }else if($this->session->op == self::OP_UPDATE){
                 $f = 'update';
                 $s = $f.'d';
+            }else if($this->session->op == self::OP_VERIFY){
+                $f = 'verify';
+                $s = 'verified';
             }else if($this->session->op == self::OP_DELETE || $this->session->op == self::OP_DELETE_ALL){
                 $f = 'remove';
                 $s = $f.'d';
@@ -591,6 +594,15 @@ class Announcement extends Navigation{
         }
     }
     
+    public function verify($slug = NULL, $status = 0){
+        if($this->session->user->type == self::ADMIN){
+            $this->session->op = self::OP_VERIFY;
+            $this->session->res = $this->announcement_model->verify_announcement($slug, intval($status));
+            $this->session->mark_as_flash(array('op', 'res'));
+        }
+        redirect('announcement');
+    }
+
     public function delete($slug = NULL){
         if(!is_null($slug)){
             $this->session->op = self::OP_DELETE;
