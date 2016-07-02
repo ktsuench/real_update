@@ -169,7 +169,12 @@ function update_start(class_name){
                     if(Object.keys(data).length > 0){
                         data = Object.keys(data).map(function(key){return data[key];});
                         data = data.reverse();
-                        data.unshift(data.pop())
+
+                        //Will properly display the content even if there are
+                        //more than two vertical sliders. Right now there are
+                        //only two.
+                        for(var i = 1; i < hooks.length; i++)
+                            data.unshift(data.pop());
                     }
 
                     hooks.forEach( function(hook, index) {
@@ -371,8 +376,48 @@ function initialize_display(){
         window.setInterval(function(){refresh_weather('weather')}, 1000 * 60 * 30);
     }, 1000 * 60 * 30);
 
-    //Start the scrolling content containers
-    scroll_start('display');
+    /**
+     * This allows the content to be loaded first before the DOM modifications are done
+     * and it ensures that the modifications are doen correctly.
+     * If this method is not prefered and it is prefered to have the DOM modifications
+     * done right away, comment out this block. Uncomment the line below this block.
+     */
+    {
+        //Used to transistion smoothly into showing display content
+        var loading_screen = document.createElement('DIV');
+        var loading_text = 'Loading...';
+
+        loading_screen.id = 'loading';
+        
+        //Insert the created element
+        (document.getElementById('display')).insertAdjacentHTML('beforeBegin', loading_screen.outerHTML);
+
+        loading_screen = document.getElementById('loading');
+
+        //Queue the animation
+        loading_text.split('').forEach( function(letter, index) {
+            window.setTimeout(function(){
+                loading_screen.innerHTML += letter;
+            }, 1000/loading_text.length * (index + 1));
+        });
+
+        //Start the scrolling content containers
+        window.setTimeout(function(){
+            scroll_start('display');
+
+            //Make the display visible
+            (document.getElementById('display')).setAttribute('style', 'opacity: 1;');
+
+            //Remove the loading screen animation
+            window.setTimeout(function(){
+                (document.getElementById('loading')).remove();
+            }, 1250);
+
+        }, 250);
+    }
+
+    //This is only used if it is prefered that the DOM modifications be done right away.
+    //scroll_start('display');
 
     //Start the update content background process
     //TODO: If failed to update display due to internet connection, check again when internet is available
@@ -391,7 +436,7 @@ function initialize_display(){
         if(window.innerHeight >= 620 && window.innerWidth >= 1024){
             resize_event = window.setTimeout(function(){reset_scroll_timers();}, 50);
         }
-    }); 
+    });
 }
 
 initialize_display();
