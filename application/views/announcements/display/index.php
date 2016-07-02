@@ -88,7 +88,7 @@
         </div>
     </div>
 </div>
-<link rel="stylesheet" type="text/css" href='<?php echo base_url(''); ?>assets/vendor/css/weather-icons.min.css'>
+<link rel="stylesheet" type="text/css" href='<?php echo base_url(''); ?>assets/vendor/weather_icons/css/weather-icons.min.css'>
 <script>
     var update_display = '<?php echo base_url('announcement/display/update'); ?>';
     var update_weather = '<?php echo base_url('announcement/display/update/weather'); ?>';
