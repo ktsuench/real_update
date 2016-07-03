@@ -2,14 +2,20 @@
 
 <?php if(!empty($announcement_res)){echo heading($announcement_res, 3);}?>
 
+<?php
+  function access_control($admin_mode = FALSE){
+    if($admin_mode == FALSE){
+      return '<a href="'.base_url('announcement/view/all').'">View All Announcements</a><br/>';
+    }else{
+      return '<a href="'.base_url('announcement/').'">View Own Announcements</a><br/>';
+    }
+  }
+?>
+
 <?php if(!empty($announcement)){?>
     <?php if($this->session->user->type == ADMIN){ ?>
         <a href="<?php echo base_url('announcement/delete/all'); ?>">Delete All</a><br/>
-        <?php if($admin_mode == FALSE){ ?>
-          <a href="<?php echo base_url('announcement/view/all'); ?>">View All Announcements</a><br/>
-        <?php }else{ ?>
-          <a href="<?php echo base_url('announcement/'); ?>">View Own Announcements</a><br/>
-        <?php } ?>
+        <?php echo access_control($admin_mode); ?>
     <?php } ?>
     <table>
         <thead>
@@ -47,6 +53,7 @@
         </tbody>
     </table>
 <?php }else{ ?>
+  <?php if($this->session->user->type == ADMIN) echo access_control($admin_mode); ?>
   <?php if($admin_mode == FALSE){ ?>
     <h3>There are no announcements that you have created to be shown.</h3>
   <? }else{ ?>
