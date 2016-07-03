@@ -4,7 +4,12 @@
 
 <?php if(!empty($announcement)){?>
     <?php if($this->session->user->type == ADMIN){ ?>
-        <a href="<?php echo base_url('announcement/delete/all'); ?>">Delete All</a>
+        <a href="<?php echo base_url('announcement/delete/all'); ?>">Delete All</a><br/>
+        <?php if($admin_mode == FALSE){ ?>
+          <a href="<?php echo base_url('announcement/view/all'); ?>">View All Announcements</a><br/>
+        <?php }else{ ?>
+          <a href="<?php echo base_url('announcement/'); ?>">View Own Announcements</a><br/>
+        <?php } ?>
     <?php } ?>
     <table>
         <thead>
@@ -42,5 +47,9 @@
         </tbody>
     </table>
 <?php }else{ ?>
-    <h3>There are no announcements to be shown.</h3>
+  <?php if($admin_mode == FALSE){ ?>
+    <h3>There are no announcements that you have created to be shown.</h3>
+  <? }else{ ?>
+    <h3>There are no announcements in the system to be shown.</h3>
+  <?php } ?>
 <?php } ?>
