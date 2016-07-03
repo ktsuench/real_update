@@ -126,8 +126,6 @@ class User extends Navigation{
     //TODO: Add instructions to the index page
     //TODO: Validate csv files (i.e. correct format, valid data)
     public function create_batch(){
-        $this->load->library('user_agent');
-        
         $data['title'] = 'Users Create (Batch)';
         
         $data['page_title'] = 'Users Create (Batch)';
@@ -241,8 +239,6 @@ class User extends Navigation{
     }
     
     public function verify_pass($pass, $extra){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'login') !== FALSE ||
             stripos($this->agent->referrer(), 'user/update') !== FALSE){

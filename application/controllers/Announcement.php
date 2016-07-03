@@ -26,6 +26,7 @@ class Announcement extends Navigation{
             $data['announcement'] = $this->announcement_model->get_announcement(FALSE, TRUE);
         }
         $data['title'] = 'Announcements List';
+        $data['stylesheet'][] = 'ann_list.css';
         $data['admin_mode'] = $admin_mode;
         
         if(isset($this->session->ann_create)){
@@ -290,8 +291,6 @@ class Announcement extends Navigation{
     //Public method because it is accessed in JS script
     //Used by Schedule Method
     public function get_calendar(){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
             stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
@@ -350,8 +349,6 @@ class Announcement extends Navigation{
     
     //Used by Schedule Method for validation purposes
     public function verify_date(){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
             stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
@@ -371,8 +368,6 @@ class Announcement extends Navigation{
 
     //Used by Schedule Method for validation purposes
     public function check_dateinterval($date, $extra){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
             stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
@@ -400,7 +395,7 @@ class Announcement extends Navigation{
     public function schedule(){
         if(!empty($this->session->ann_create)){
             $this->load->helper('form');
-            $this->load->library(array('form_validation', 'user_agent'));
+            $this->load->library('form_validation');
             
             $data['title'] = 'Announcement Scheduling';
             $data['page_action'] = 'announcement/schedule';
@@ -545,7 +540,7 @@ class Announcement extends Navigation{
     //TODO: Add instructions to the index page
     //TODO: Validate csv files (i.e. correct format, valid data)
     public function create_batch(){
-        $this->load->library(array('user_agent','form_validation'));
+        $this->load->library('form_validation');
         
         $data['title'] = 'Announcement Create (Batch)';
         
@@ -629,8 +624,6 @@ class Announcement extends Navigation{
     
     //Used by Display
     public function update_list(){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/display') !== FALSE){
             $announcement = $this->announcement_model->get_announcement_display();
@@ -653,8 +646,6 @@ class Announcement extends Navigation{
 
     //Used by Display
     public function update_weather(){
-        $this->load->library('user_agent');
-        
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/display') !== FALSE){
             $appid = '0d93580d7ee4d84bdc222908774fc07b';
