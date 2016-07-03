@@ -595,31 +595,48 @@ class Announcement extends Navigation{
         }
     }
     
-    public function verify($slug = NULL, $status = 0){
-        if($this->session->user->type == self::ADMIN){
-            $this->session->op = self::OP_VERIFY;
-            $this->session->res = $this->announcement_model->verify_announcement($slug, intval($status));
+    //Used for verifying and deleting announcements
+    protected function operation_template($op = FALSe, $model_method = FALSE){
+        if($op !== FALSE && $model_method != FALSE){
+            $this->session->op = $op;
+            $this->session->res = $model_method;
             $this->session->mark_as_flash(array('op', 'res'));
+        }
+    }
+
+    //Used to redirect user to previous paget hey were on
+    protected function redirect_to($ref = FALSE){
+        if($ref != FALSE){
+            $route = substr($ref, strlen($ref) - stripos(strrev($ref), '/'));
+            if($route == 'announcement' || stripos($ref, 'announcement/view/all') !== FALSE){
+                redirect($this->agent->referrer());
+            }
         }
         redirect('announcement');
     }
 
+    public function verify($slug = NULL, $status = 0){
+        if($this->session->user->type == self::ADMIN){
+            self::operation_template(self::OP_VERIFY, $this->announcement_model->verify_announcement($slug, intval($status)));
+        }
+
+        self::redirect_to($this->agent->referrer());
+    }
+
     public function delete($slug = NULL){
         if(!is_null($slug)){
-            $this->session->op = self::OP_DELETE;
-            $this->session->res = $this->announcement_model->rem_announcement($slug);
-            $this->session->mark_as_flash(array('op', 'res'));
+            self::operation_template(self::OP_DELETE, $this->announcement_model->rem_announcement($slug));
         }
-        redirect('announcement');
+
+        self::redirect_to($this->agent->referrer());
     }
     
     public function delete_all(){
         if($this->session->user->type == self::ADMIN){
-            $this->session->op = self::OP_DELETE_ALL;
-            $this->session->res = $this->announcement_model->rem_announcement_all();
-            $this->session->mark_as_flash(array('op', 'res'));
+            self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all());
         }
-        redirect('announcement');
+
+        self::redirect_to($this->agent->referrer());
     }
     
     //Used by Display
