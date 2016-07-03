@@ -227,7 +227,8 @@ class Announcement extends Navigation{
 
             //Clean up image directories
             if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $create['image']) || $remove_image){
-                unlink(self::TMP_UPLOAD_PATH.$this->session->ann_create['image']);
+                $path = self::TMP_UPLOAD_PATH.$this->session->ann_create['image'];
+                if(file_exists($path)) unlink($path);
                 
                 //Remove image file from garbage collection
                 $tmp = $this->session->temp_files;

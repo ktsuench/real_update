@@ -310,7 +310,7 @@ class User extends Navigation{
         //NOTE: may need to change in the future if session variables are used else where other than dashboard
         if(isset($this->session->temp_files)){
             foreach($this->session->temp_files as $t){
-                unlink('./uploads/tmp/'.$t);
+                if(file_exists('./uploads/tmp/'.$t)) unlink('./uploads/tmp/'.$t);
             }
         }
         session_unset();
