@@ -28,15 +28,13 @@ Class Announcement_Model extends CI_Model{
     }
     
     public function set_announcement($slug = FALSE){
-        //TODO: put the constants in a constant file so that it can be used here too
-        $ann_verified = $this->session->user->type == 'admin' ? 1 : 0;
         $ann_title = url_title($this->session->ann_create['title'],'-',TRUE);
         $data = array(
             'title'             =>  $this->session->ann_create['title'],
             'content'           =>  $this->session->ann_create['content'],
             'type'              =>  $this->session->ann_create['type'],
             'author'            =>  $this->session->user->email,
-            'verified'          =>  $ann_verified,
+            'verified'          =>  $this->session->ann_create['verified'];
             'start_datetime'    =>  $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:s'),
             'end_datetime'      =>  $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:s'),
             'slug'              =>  $ann_title.'-'.(new DateTime())->getTimestamp()

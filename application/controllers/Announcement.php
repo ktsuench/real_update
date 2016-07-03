@@ -193,7 +193,8 @@ class Announcement extends Navigation{
             $this->load_view('announcements/create', $data, TRUE);
         }else{
             $create = array(
-                'op'        =>   $op,
+                'op'        =>  $op,
+                'verified'  =>  $this->session->user->type == self::ADMIN ? 1 : 0;
                 'schedule'  =>  array(
                     'start' =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['start'] : '',
                     'end'   =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['end'] : ''
