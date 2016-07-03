@@ -54,7 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 //Anouncement Controller
 $route['announcement'] = 'announcement';
-$route['announcement/view/all'] = 'announcement/index/TRUE';
+$route['announcement/all'] = 'announcement/index/TRUE';
 $route['announcement/create'] = 'announcement/create';
 if(ENVIRONMENT == 'development') $route['announcement/create/batch'] = 'announcement/create_batch';
 $route['announcement/update'] = 'announcement/update';

@@ -27,7 +27,7 @@ class Announcement extends Navigation{
         }
         $data['title'] = 'Announcements List';
         $data['stylesheet'][] = 'ann_list.css';
-        $data['admin_mode'] = $admin_mode;
+        $data['admin_mode'] = $this->session->user->type != self::ADMIN ? FALSE : $admin_mode;
         
         if(isset($this->session->ann_create)){
             //$this->session->unset_tempdata('ann_create');
@@ -604,11 +604,11 @@ class Announcement extends Navigation{
         }
     }
 
-    //Used to redirect user to previous paget hey were on
+    //Used to redirect user to previous paget they were on
     protected function redirect_to($ref = FALSE){
         if($ref != FALSE){
             $route = substr($ref, strlen($ref) - stripos(strrev($ref), '/'));
-            if($route == 'announcement' || stripos($ref, 'announcement/view/all') !== FALSE){
+            if($route == 'announcement' || stripos($ref, 'announcement/all') !== FALSE){
                 redirect($this->agent->referrer());
             }
         }
