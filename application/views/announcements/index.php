@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           <?php foreach ($announcement as $a){ ?>
-            <tr>
+            <tr <?php echo 'class="'.(boolval($a['verified']) ? 'validated' : 'invalidated').'"'; ?>>
                 <td><?php echo $a['title']; ?></td>
                 <td><?php echo $a['content']; ?></td>
                 <td><?php echo $a['author']; ?></td>
