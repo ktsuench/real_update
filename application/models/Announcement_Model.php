@@ -15,14 +15,18 @@ Class Announcement_Model extends CI_Model{
         self::$upload_path_temp = './uploads/tmp/';
     }
     
-    public function get_announcement($slug = FALSE){
+    public function get_announcement($slug = FALSE, $admin_mode = FALSE){
         $this->db->order_by('title ASC, start_datetime ASC');
         
         if($slug == FALSE){
-            $query = $this->db->get(self::TABLE_NAME);
+            if($admin_mode == FALSE){
+                $query = $this->db->get_where(self::TABLE_NAME, array('author' => $this->session->user->email));
+            }else{
+                $query = $this->db->get(self::TABLE_NAME);
+            }
             return $query->result_array();
         }
-        
+
         $query = $this->db->get_where(self::TABLE_NAME, array('slug' => $slug));
         return $query->row_array();
     }
@@ -34,7 +38,7 @@ Class Announcement_Model extends CI_Model{
             'content'           =>  $this->session->ann_create['content'],
             'type'              =>  $this->session->ann_create['type'],
             'author'            =>  $this->session->user->email,
-            'verified'          =>  $this->session->ann_create['verified'];
+            'verified'          =>  $this->session->ann_create['verified'],
             'start_datetime'    =>  $this->session->ann_create['schedule']['start']->format('Y-m-d\TH:i:s'),
             'end_datetime'      =>  $this->session->ann_create['schedule']['end']->format('Y-m-d\TH:i:s'),
             'slug'              =>  $ann_title.'-'.(new DateTime())->getTimestamp()

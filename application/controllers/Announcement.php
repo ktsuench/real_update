@@ -19,10 +19,15 @@ class Announcement extends Navigation{
     
     //TODO: move the session var dumping into construct
     //NOTE: cannot do it without constantly erasing data while creating/updating data
-    public function index(){
-        $data['announcement'] = $this->announcement_model->get_announcement();
+    public function index($admin_mode = FALSE){
+        if($admin_mode == FALSE || $this->session->user->type != self::ADMIN){
+            $data['announcement'] = $this->announcement_model->get_announcement();
+        }else if($this->session->user->type == self::ADMIN){
+            $data['announcement'] = $this->announcement_model->get_announcement(FALSE, TRUE);
+        }
         $data['title'] = 'Announcements List';
-
+        $data['admin_mode'] = $admin_mode;
+        
         if(isset($this->session->ann_create)){
             //$this->session->unset_tempdata('ann_create');
             unset($_SESSION['ann_create']);
@@ -194,7 +199,7 @@ class Announcement extends Navigation{
         }else{
             $create = array(
                 'op'        =>  $op,
-                'verified'  =>  $this->session->user->type == self::ADMIN ? 1 : 0;
+                'verified'  =>  $this->session->user->type == self::ADMIN ? 1 : 0,
                 'schedule'  =>  array(
                     'start' =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['start'] : '',
                     'end'   =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['end'] : ''
