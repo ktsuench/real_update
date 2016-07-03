@@ -14,6 +14,12 @@ Class Announcement_Model extends CI_Model{
         self::$upload_path = './uploads/ann_content/';
         self::$upload_path_temp = './uploads/tmp/';
     }
+
+    protected function rem_file($path = FALSE){
+        if($path != FALSE){
+            if(file_exists($path)) unlink($path);
+        }
+    }
     
     public function get_announcement($slug = FALSE, $admin_mode = FALSE){
         $this->db->order_by('title ASC, start_datetime ASC');
@@ -78,7 +84,7 @@ Class Announcement_Model extends CI_Model{
         //Remove the existing image file if there is one
         if($slug != FALSE && $ann['image'] !== NULL){
             if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']) || $remove_image == TRUE){
-                unlink(self::$upload_path.$ann['image']);
+                self::rem_file(self::$upload_path.$ann['image']);
             }
         }
 
@@ -132,15 +138,34 @@ Class Announcement_Model extends CI_Model{
     public function rem_announcement($slug = FALSE){
         if($slug != FALSE){
             $ann = self::get_announcement($slug);
-            unlink('./uploads/ann_content/'.$ann['image']);
+            self::rem_file(self::$upload_path.$ann['image']);
 
             return $this->db->delete(self::TABLE_NAME, array('slug' => $slug));
         }
         return 0;
     }
     
-    public function rem_announcement_all(){
-        return $this->db->empty_table(self::TABLE_NAME);
+    public function rem_announcement_all($author = FALSE){
+        $where_img = '(image IS NOT NULL)';
+        $where_del = '';
+
+        if($author != FALSE){
+            $where_del = '(author = "'.$author.'")';
+            $where_img .= ' AND '.$where_del;
+        }
+
+        //Remove the images linked to announcements first
+        $query = $this->db->get_where(self::TABLE_NAME, $where_img);
+        foreach($query->result_array() as $row){
+            self::rem_file(self::$upload_path.$row['image']);
+        }
+
+        //Delete the announcements
+        if(empty($where_del)){
+            return $this->db->empty_table(self::TABLE_NAME);
+        }else{
+            return $this->db->delete(self::TABLE_NAME, $where_del);
+        }
     }
     
     //Used to prevent announcements with the same title to use the same 'unique' slug primary key

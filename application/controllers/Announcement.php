@@ -633,7 +633,15 @@ class Announcement extends Navigation{
     
     public function delete_all(){
         if($this->session->user->type == self::ADMIN){
-            self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all());
+            $ref = $this->agent->referrer();
+            if($ref != FALSE){
+                $route = substr($ref, strlen($ref) - stripos(strrev($ref), '/'));
+                if($route == 'announcement'){
+                    self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all($this->session->user->email));
+                }else if(stripos($ref, 'announcement/all') !== FALSE){
+                    self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all());
+                }
+            }
         }
 
         self::redirect_to($this->agent->referrer());
