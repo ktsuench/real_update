@@ -82,7 +82,6 @@ function scroll_start(frame){
                             if(content.classList.contains(content_classname)){
                                 content.setAttribute('style', 'width:' + (container_width - 1) + 'px;');
 
-
                                 var el = Array.from(content.querySelector('.'+content_element_classnames[1]).children);
                                 var content_height = 0;
                                 var img;
@@ -289,18 +288,23 @@ function refresh_weather(id){
         if(xhr.readyState === DONE){
             if(xhr.status === OK){
                 var weather_container = document.getElementById(id);
-                var weather_icon;
-                var weather_temp;
-                var weather_desc;
 
-                data = JSON.parse(xhr.responseText);
+                if(xhr.responseText.length > 0){
+                    data = JSON.parse(xhr.responseText);
 
-                weather_icon = '<i class="wi wi-owm-' + data.weather[0].id + '"></i>';
-                weather_temp = '<span style="margin-left:0.3em;">' + data.main.temp + '<i class="wi wi-celsius"></i></span>';
-                weather_desc = '<span style="text-transform:capitalize;">' + data.weather[0].description + '</span>';
-                weather_container.innerHTML = '<div>' + weather_icon + weather_temp + '</div>' + weather_desc;
+                    var weather_icon;
+                    var weather_temp;
+                    var weather_desc;
 
-                console.log('Updated weather @ ' + (new Date()))
+                    weather_icon = '<i class="wi wi-owm-' + data.weather[0].id + '"></i>';
+                    weather_temp = '<span style="margin-left:0.3em;">' + data.main.temp + '<i class="wi wi-celsius"></i></span>';
+                    weather_desc = '<span style="text-transform:capitalize;">' + data.weather[0].description + '</span>';
+                    weather_container.innerHTML = '<div>' + weather_icon + weather_temp + '</div>' + weather_desc;                
+                }else{
+                    weather_container.innerHTML = '<div>Unable to retrieve current weather info.</div>';
+                }
+
+                console.log('Updated weather @ ' + (new Date()));
             }else console.log('Error updating weather. Server Error: ' + xhr.status);
         }
     }

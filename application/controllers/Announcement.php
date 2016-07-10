@@ -143,6 +143,7 @@ class Announcement extends Navigation{
             }else return TRUE;
         }catch(Exception $e){
             if(ENVIRONMENT != 'production') throw $e;
+            log_message('debug', $e->getMessage());
         }
     }
 
@@ -679,7 +680,12 @@ class Announcement extends Navigation{
             $units = 'metric';
             $link = 'http://api.openweathermap.org/data/2.5/weather?q='.$query.'&units='.$units.'&appid='.$appid;
 
-            echo file_get_contents($link);
+            try{
+                echo @file_get_contents($link);
+            }catch(Exception $e){
+                if(ENVIRONMENT != 'production') throw $e;
+                log_message('debug', $e->getMessage());
+            }
         }else{
             redirect('announcement/display');
         }
