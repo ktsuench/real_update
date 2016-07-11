@@ -14,7 +14,7 @@
         
         <div class="main">
             <?php echo 'Email: '.$u['email'];?><br/>
-            <?php echo 'Type: '.($u['type'] == 'admin' ? 'Admin' : 'Guest'); ?>
+            <?php echo 'Type: '.($u['type'] == ADMIN ? 'Admin' : 'Guest'); ?>
         </div>
 
         <?php if(strcasecmp($fn, 'admin') !== 0 && strcasecmp($fn, 'guest') !== 0){ ?>

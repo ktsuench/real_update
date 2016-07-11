@@ -4,30 +4,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require_once 'Navigation.php';
 
 class Announcement extends Navigation{
-    const TMP_UPLOAD_PATH = './uploads/tmp/';
-
-    protected static $upload_path;
-    protected static $upload_path_temp;
-
     public function __construct(){
         parent::__construct();
         $this->load->model('announcement_model');
-
-        self::$upload_path = base_url().'uploads/ann_content/';
-        self::$upload_path_temp = base_url().'uploads/tmp/';
     }
     
     //TODO: move the session var dumping into construct
     //NOTE: cannot do it without constantly erasing data while creating/updating data
     public function index($admin_mode = FALSE){
-        if($admin_mode == FALSE || $this->session->user->type != self::ADMIN){
+        if($admin_mode == FALSE || $this->session->user->type != ADMIN){
             $data['announcement'] = $this->announcement_model->get_announcement();
-        }else if($this->session->user->type == self::ADMIN){
+        }else if($this->session->user->type == ADMIN){
             $data['announcement'] = $this->announcement_model->get_announcement(FALSE, TRUE);
         }
         $data['title'] = 'Announcements List';
         $data['stylesheet'][] = 'ann_list.css';
-        $data['admin_mode'] = $this->session->user->type != self::ADMIN ? FALSE : $admin_mode;
+        $data['admin_mode'] = $this->session->user->type != ADMIN ? FALSE : $admin_mode;
         
         if(isset($this->session->ann_create)){
             //$this->session->unset_tempdata('ann_create');
@@ -40,23 +32,23 @@ class Announcement extends Navigation{
         }
         
         if(isset($this->session->res)){
-            if($this->session->op == self::OP_CREATE || $this->session->op == self::OP_CREATE_BATCH){
+            if($this->session->op == OP_CREATE || $this->session->op == OP_CREATE_BATCH){
                 $f = 'submit';
                 $s = $f.'ted';
-            }else if($this->session->op == self::OP_UPDATE){
+            }else if($this->session->op == OP_UPDATE){
                 $f = 'update';
                 $s = $f.'d';
-            }else if($this->session->op == self::OP_VERIFY){
+            }else if($this->session->op == OP_VERIFY){
                 $f = 'verify';
                 $s = 'verified';
-            }else if($this->session->op == self::OP_DELETE || $this->session->op == self::OP_DELETE_ALL){
+            }else if($this->session->op == OP_DELETE || $this->session->op == OP_DELETE_ALL){
                 $f = 'remove';
                 $s = $f.'d';
             }
             
             $f = $s .= ' announcement';
             
-            if($this->session->op == self::OP_CREATE_BATCH || $this->session->op == self::OP_DELETE_ALL) $f = $s .= 's';
+            if($this->session->op == OP_CREATE_BATCH || $this->session->op == OP_DELETE_ALL) $f = $s .= 's';
             
             $succ = 'Sucessfully '.$s.'.';
             $fail = 'Failed to '.$f.', try again later.';
@@ -74,7 +66,7 @@ class Announcement extends Navigation{
             $name = basename($_FILES['image']['name']);
 
             //Error messages
-            if($err != UPLOAD_ERR_OK && ENVIRONMENT == 'development'){
+            if($err != UPLOAD_ERR_OK && ENVIRONMENT == ENV_DEVELOPMENT){
                 switch($err){ 
                     case UPLOAD_ERR_INI_SIZE:
                         $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
@@ -125,7 +117,7 @@ class Announcement extends Navigation{
 
             if($err === UPLOAD_ERR_OK){
                 if(strpos($_FILES['image']['type'], 'image') === 0){
-                    if(move_uploaded_file($tmp_name, self::TMP_UPLOAD_PATH.$name)){
+                    if(move_uploaded_file($tmp_name, './'.UPLOAD_TMP.$name)){
                         //Update the temp files session variable for garbage collection later
                         $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
                         $tmp[] = $name;
@@ -133,7 +125,7 @@ class Announcement extends Navigation{
 
                         //Store in session variable for later use
                         $this->session->ann_img = $name;
-                    }else $upload_err = (ENVIRONMENT == 'development') ? 'Could not move uploaded file.' : $err;
+                    }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
                 }else $upload_err = 'Please upload a valid image file.';
             }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
 
@@ -142,7 +134,7 @@ class Announcement extends Navigation{
                 return FALSE;
             }else return TRUE;
         }catch(Exception $e){
-            if(ENVIRONMENT != 'production') throw $e;
+            if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
             log_message('debug', $e->getMessage());
         }
     }
@@ -150,8 +142,8 @@ class Announcement extends Navigation{
     //Template for Create and Update Methods
     protected function create_template($settings, $op, $slug = FALSE){
         $data = $settings;
-        $data['upload_path'] = self::$upload_path;
-        $data['upload_path_temp'] = self::$upload_path_temp;
+        $data['upload_path'] = base_url().UPLOAD_ANN;
+        $data['upload_path_temp'] = base_url().UPLOAD_TMP;
         
         $data['title_max_length'] = 50;
         $data['content_max_length'] = 150;
@@ -201,7 +193,7 @@ class Announcement extends Navigation{
         }else{
             $create = array(
                 'op'        =>  $op,
-                'verified'  =>  $this->session->user->type == self::ADMIN ? 1 : 0,
+                'verified'  =>  $this->session->user->type == ADMIN ? 1 : 0,
                 'schedule'  =>  array(
                     'start' =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['start'] : '',
                     'end'   =>  isset($this->session->ann_create) ? $this->session->ann_create['schedule']['end'] : ''
@@ -228,7 +220,7 @@ class Announcement extends Navigation{
 
             //Clean up image directories
             if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $create['image']) || $remove_image){
-                $path = self::TMP_UPLOAD_PATH.$this->session->ann_create['image'];
+                $path = './'.UPLOAD_TEMP.$this->session->ann_create['image'];
                 if(file_exists($path)) unlink($path);
                 
                 //Remove image file from garbage collection
@@ -262,7 +254,7 @@ class Announcement extends Navigation{
         $data['title'] = 'Announcement Create';
         $data['page_action'] = 'announcement/create';
         
-        self::create_template($data, array('name' => 'create', 'type' => self::OP_CREATE));
+        self::create_template($data, array('name' => 'create', 'type' => OP_CREATE));
     }
     
     public function update($slug = NULL){
@@ -281,7 +273,7 @@ class Announcement extends Navigation{
                 $data['title'] = 'Announcement Update';
                 $data['page_action'] = 'announcement/update/'.$slug;
                 
-                self::create_template($data, array('name' => 'update', 'type' => self::OP_UPDATE), $slug);
+                self::create_template($data, array('name' => 'update', 'type' => OP_UPDATE), $slug);
             }else{
                 redirect('announcement/create');
             }
@@ -528,7 +520,7 @@ class Announcement extends Navigation{
                 //Storing announcement data into db and reporting completion
                 $this->session->op = $this->session->ann_create['op']['type'];
                 
-                $slug = $this->session->op == self::OP_UPDATE ? $this->session->ann_create['slug'] : FALSE;
+                $slug = $this->session->op == OP_UPDATE ? $this->session->ann_create['slug'] : FALSE;
                 $this->session->res = $this->announcement_model->set_announcement($slug) ? TRUE : FALSE;
                 
                 $this->session->mark_as_flash(array('op', 'res'));
@@ -553,7 +545,7 @@ class Announcement extends Navigation{
         
         //Upload Library Config
         {
-            $config['upload_path'] = './uploads/';
+            $config['upload_path'] = './'.UPLOAD_TMP;
             $config['allowed_types'] = 'csv';
             $config['overwrite'] = TRUE;
             $config['encrypt_name'] = TRUE;
@@ -590,7 +582,7 @@ class Announcement extends Navigation{
             unlink($file_info['full_path']);
             
             //Add announcements to db
-            $this->session->op = self::OP_CREATE_BATCH;
+            $this->session->op = OP_CREATE_BATCH;
             $this->session->res = $this->announcement_model->set_announcement_batch($announcements) ? TRUE : FALSE;
             $this->session->mark_as_flash(array('op', 'res'));
             redirect('announcement');
@@ -618,8 +610,8 @@ class Announcement extends Navigation{
     }
 
     public function verify($slug = NULL, $status = 0){
-        if($this->session->user->type == self::ADMIN){
-            self::operation_template(self::OP_VERIFY, $this->announcement_model->verify_announcement($slug, intval($status)));
+        if($this->session->user->type == ADMIN){
+            self::operation_template(OP_VERIFY, $this->announcement_model->verify_announcement($slug, intval($status)));
         }
 
         self::redirect_to($this->agent->referrer());
@@ -627,21 +619,21 @@ class Announcement extends Navigation{
 
     public function delete($slug = NULL){
         if(!is_null($slug)){
-            self::operation_template(self::OP_DELETE, $this->announcement_model->rem_announcement($slug));
+            self::operation_template(OP_DELETE, $this->announcement_model->rem_announcement($slug));
         }
 
         self::redirect_to($this->agent->referrer());
     }
     
     public function delete_all(){
-        if($this->session->user->type == self::ADMIN){
+        if($this->session->user->type == ADMIN){
             $ref = $this->agent->referrer();
             if($ref != FALSE){
                 $route = substr($ref, strlen($ref) - stripos(strrev($ref), '/'));
                 if($route == 'announcement'){
-                    self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all($this->session->user->email));
+                    self::operation_template(OP_DELETE_ALL, $this->announcement_model->rem_announcement_all($this->session->user->email));
                 }else if(stripos($ref, 'announcement/all') !== FALSE){
-                    self::operation_template(self::OP_DELETE_ALL, $this->announcement_model->rem_announcement_all());
+                    self::operation_template(OP_DELETE_ALL, $this->announcement_model->rem_announcement_all());
                 }
             }
         }
@@ -683,7 +675,7 @@ class Announcement extends Navigation{
             try{
                 echo @file_get_contents($link);
             }catch(Exception $e){
-                if(ENVIRONMENT != 'production') throw $e;
+                if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
                 log_message('debug', $e->getMessage());
             }
         }else{
@@ -695,7 +687,7 @@ class Announcement extends Navigation{
         $data['announcement'] = $this->announcement_model->get_announcement_display();
         $data['title'] = 'Riverdale Collegiate Institute Announcements Display';
         $data['stylesheet'][] = 'ann_disp.css';
-        $data['upload_path'] = self::$upload_path;
+        $data['upload_path'] = base_url().UPLOAD_ANN;
 
         //Do not display the copyright in footer template file
         $data['do_not_display'] = TRUE;

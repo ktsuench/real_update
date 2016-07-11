@@ -1,17 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Navigation extends CI_Controller{
-    //TODO: Place constants in a config file
-    const OP_CREATE = 0;
-    const OP_UPDATE = 1;
-    const OP_VERIFY = 2;
-    const OP_DELETE = 3;
-    const OP_CREATE_BATCH = 4;
-    const OP_DELETE_ALL = 5;
-    const GUEST = 'guest';
-    const ADMIN = 'admin';
-    
+require_once './application/config/app/constants.php';
+
+class Navigation extends CI_Controller{    
     public function __construct(){
         parent::__construct();
         date_default_timezone_set('America/Toronto');

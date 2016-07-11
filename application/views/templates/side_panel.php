@@ -7,7 +7,7 @@
     $sp_title = 'Submit an announcement';
     echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
     
-    if(ENVIRONMENT == 'development'){
+    if(ENVIRONMENT == ENV_DEVELOPMENT){
         $sp_link = base_url('announcement/create/batch');
         $sp_title = 'Submit announcements (batch)';
         echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;

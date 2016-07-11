@@ -66,18 +66,18 @@ class User extends Navigation{
         $data['title'] = 'Users List';
         
         if(isset($this->session->res)){
-            if($this->session->op == self::OP_CREATE || $this->session->op == self::OP_CREATE_BATCH){
+            if($this->session->op == OP_CREATE || $this->session->op == OP_CREATE_BATCH){
                 $f = 'submit';
                 $s = $f.'ted';
-            }else if($this->session->op == self::OP_UPDATE){
+            }else if($this->session->op == OP_UPDATE){
                 $f = 'update';
                 $s = $f.'d';
-            }else if($this->session->op == self::OP_DELETE){
+            }else if($this->session->op == OP_DELETE){
                 $f = 'remove';
                 $s = $f.'d';
             }
             
-            $f = $s .= ' user'.($this->session->op == self::OP_CREATE_BATCH ? 's' : '');
+            $f = $s .= ' user'.($this->session->op == OP_CREATE_BATCH ? 's' : '');
             
             $succ = 'Sucessfully '.$s.'.';
             $fail = 'Failed to '.$f.', try again later.';
@@ -116,7 +116,7 @@ class User extends Navigation{
         if($this->form_validation->run() == FALSE){
             $this->load_view('users/create', $data, TRUE);
         }else{
-            $this->session->op = self::OP_CREATE;
+            $this->session->op = OP_CREATE;
             $this->session->res = $this->user_model->set_user() ? TRUE : FALSE;
             $this->session->mark_as_flash(array('op', 'res'));
             redirect('user');
@@ -171,7 +171,7 @@ class User extends Navigation{
             unlink($file_info['full_path']);
             
             //Add users to db
-            $this->session->op = self::OP_CREATE_BATCH;
+            $this->session->op = OP_CREATE_BATCH;
             $this->session->res = $this->user_model->set_user_batch($users) ? TRUE : FALSE;
             $this->session->mark_as_flash(array('op', 'res'));
             redirect('user');
@@ -210,7 +210,7 @@ class User extends Navigation{
                 if($this->form_validation->run() == FALSE){
                     $this->load_view('users/create', $data, TRUE);
                 }else{
-                    $this->session->op = self::OP_UPDATE;
+                    $this->session->op = OP_UPDATE;
                     $this->session->res = $this->user_model->set_user($email);
                     $this->session->mark_as_flash(array('op', 'res'));
                     redirect('user');
@@ -225,12 +225,12 @@ class User extends Navigation{
     
     //TODO: Check that the user to be removed is not currently logged in
     public function delete($email = NULL){
-        if(!is_null($email) && $this->session->user->type == self::ADMIN){
+        if(!is_null($email) && $this->session->user->type == ADMIN){
             $email = base64_decode($email);
             
             //Check that the account to be removed is no the current session owner
             if($email !== $this->session->user->email){
-                $this->session->op = self::OP_DELETE;
+                $this->session->op = OP_DELETE;
                 $this->session->res = $this->user_model->rem_user($email);
                 $this->session->mark_as_flash(array('op', 'res'));
             }
@@ -310,7 +310,7 @@ class User extends Navigation{
         //NOTE: may need to change in the future if session variables are used else where other than dashboard
         if(isset($this->session->temp_files)){
             foreach($this->session->temp_files as $t){
-                if(file_exists('./uploads/tmp/'.$t)) unlink('./uploads/tmp/'.$t);
+                if(file_exists('./'.UPLOAD_TMP.$t)) unlink('./'.UPLOAD_TMP.$t);
             }
         }
         session_unset();

@@ -1,18 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+require_once './application/config/app/constants.php';
+
 Class Announcement_Model extends CI_Model{
     const TABLE_NAME = 'real_update_ann';
-
-    protected static $upload_path;
-    protected static $upload_path_temp;
     
     public function __construct(){
         parent::__construct();
         $this->load->database();
-
-        self::$upload_path = './uploads/ann_content/';
-        self::$upload_path_temp = './uploads/tmp/';
     }
 
     protected function rem_file($path = FALSE){
@@ -71,7 +67,7 @@ Class Announcement_Model extends CI_Model{
 
                 $data['image'] = $img;
 
-                rename(self::$upload_path_temp.$this->session->ann_create['image'], self::$upload_path.$img);
+                rename('./'.UPLOAD_TMP.$this->session->ann_create['image'], './'.UPLOAD_ANN.$img);
 
                 //Remove image from temp file collection
                 $tmp = $this->session->temp_files;
@@ -84,7 +80,7 @@ Class Announcement_Model extends CI_Model{
         //Remove the existing image file if there is one
         if($slug != FALSE && $ann['image'] !== NULL){
             if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']) || $remove_image == TRUE){
-                self::rem_file(self::$upload_path.$ann['image']);
+                self::rem_file('./'.UPLOAD_ANN.$ann['image']);
             }
         }
 
@@ -138,7 +134,7 @@ Class Announcement_Model extends CI_Model{
     public function rem_announcement($slug = FALSE){
         if($slug != FALSE){
             $ann = self::get_announcement($slug);
-            self::rem_file(self::$upload_path.$ann['image']);
+            self::rem_file('./'.UPLOAD_ANN.$ann['image']);
 
             return $this->db->delete(self::TABLE_NAME, array('slug' => $slug));
         }
@@ -157,7 +153,7 @@ Class Announcement_Model extends CI_Model{
         //Remove the images linked to announcements first
         $query = $this->db->get_where(self::TABLE_NAME, $where_img);
         foreach($query->result_array() as $row){
-            self::rem_file(self::$upload_path.$row['image']);
+            self::rem_file('./'.UPLOAD_ANN.$row['image']);
         }
 
         //Delete the announcements
@@ -210,7 +206,7 @@ Class Announcement_Model extends CI_Model{
         $query = $this->db->get_where(self::TABLE_NAME, $where);
         
         //For debugging and logging purposes
-        if(ENVIRONMENT == 'development' || ENVIRONMENT == 'testing'){
+        if(ENVIRONMENT == ENV_DEVELOPMENT || ENVIRONMENT == ENV_TESTING){
             $this->load->helper('path');
             
             $log_file = fopen(set_realpath('application/logs').'ann_disp/get_ann_'.$now->format('Y-m-d').'.log', 'a');
