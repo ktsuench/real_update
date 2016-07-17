@@ -87,8 +87,10 @@ $route['user/verify_pass'] = 'user/verify_pass';
 $route['user/(:any)'] = 'user';
 $route['login'] = 'user/login';
 $route['logout'] = 'user/logout';
+//Dashboard Controller
+$route['dashboard'] = 'dashboard';
+$route['settings'] = 'dashboard/settings';
 //Navigation Controller
-$route['dashboard'] = 'navigation/load_page/dashboard/'.TRUE;
 /*$route['asset'] = 'navigation/load_asset';
 $route['asset/(.+)'] = 'navigation/load_asset';*/
 //Navigation Controller General
