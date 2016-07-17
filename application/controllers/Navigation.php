@@ -48,7 +48,110 @@ class Navigation extends CI_Controller{
         $this->load->view($page.'/', $data);
         $this->load->view('templates/footer');
     }
+
+    //Used to redirect user to previous paget they were on
+    protected function redirect_to($ref = FALSE, $default = '', $routes = array()){
+        if($ref != FALSE && is_array($routes) && count($routes) > 0){
+            $route = substr($ref, -(strlen($ref) - strlen($this->config->item('base_url'))) + 1);
+            if(in_array($route, $routes, TRUE)){
+                redirect($this->agent->referrer());
+            }
+        }
+        redirect(trim($default) == '' ? $routes[0] : $default);
+    }
+
+    protected function upload_error_check($err = UPLOAD_ERR_NO_FILE){
+        //Error messages
+        if($err != UPLOAD_ERR_OK && ENVIRONMENT == ENV_DEVELOPMENT){
+            switch($err){ 
+                case UPLOAD_ERR_INI_SIZE:
+                    $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+                    break;
+                case UPLOAD_ERR_FORM_SIZE:
+                    $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                    $message = "The uploaded file was only partially uploaded";
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    //$message = "No file was uploaded";
+                    break;
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    $message = "Missing a temporary folder";
+                    break;
+                case UPLOAD_ERR_CANT_WRITE:
+                    $message = "Failed to write file to disk";
+                    break;
+                case UPLOAD_ERR_EXTENSION:
+                    $message = "File upload stopped by extension";
+                    break;
+                default:
+                    $message = "Unknown upload error";
+                    break;
+            }
+        }else if($err != UPLOAD_ERR_OK){
+            switch($err){ 
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $message = "Failed to upload image. Try selecting a smaller image.";
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                case UPLOAD_ERR_NO_TMP_DIR:
+                case UPLOAD_ERR_CANT_WRITE:
+                case UPLOAD_ERR_EXTENSION:
+                    $message = "Failed to upload file. Try again later.";
+                    break;
+                default:
+                    $message = "Unknown upload error";
+                    break;
+            }
+        }
+
+        return isset($message) ? 'Upload error. '.$message : $err;
+    }
     
+    public function process_image_upload($img, $sess_var = ''){
+        //Redirect user when trying to directly access method
+        if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
+            stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
+            stripos($this->agent->referrer(), 'settings') !== FALSE){
+            try{
+                $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+
+                $tmp_name = $_FILES['image']['tmp_name'];
+                $name = basename($_FILES['image']['name']);
+                $err = self::upload_error_check($err);
+
+                if($err === UPLOAD_ERR_OK){
+                    if(strpos($_FILES['image']['type'], 'image') === 0){
+                        if(move_uploaded_file($tmp_name, './'.UPLOAD_TMP.$name)){
+                            //Update the temp files session variable for garbage collection later
+                            $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
+                            $tmp[] = $name;
+                            $this->session->temp_files = $tmp;
+
+                            //Store in session variable for later use
+                            var_dump($sess_var);
+                            if(trim($sess_var) == '') throw new Exception('Empty Session Variable Name');
+                            $_SESSION[$sess_var] = $name;
+                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
+                    }else $upload_err = 'Please upload a valid image file.';
+                }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
+
+                if(isset($upload_err)){
+                    $this->form_validation->set_message('process_image_upload', $upload_err);
+                    return FALSE;
+                }else return TRUE;
+            }catch(Exception $e){
+                if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
+                log_message('debug', $e->getMessage());
+            }
+        }else{
+            redirect('dashboard');
+        }
+    }
     //Used to load assets from within views (scripts, stylesheets, images)
     /*public function load_asset($asset = FALSE){
         if(!empty($this->uri->segment(3))){

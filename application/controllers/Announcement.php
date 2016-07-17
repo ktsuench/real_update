@@ -58,87 +58,6 @@ class Announcement extends Navigation{
         $this->load_view('announcements', $data, TRUE);
     }
 
-    public function process_image_upload(){
-        try{
-            $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
-
-            $tmp_name = $_FILES['image']['tmp_name'];
-            $name = basename($_FILES['image']['name']);
-
-            //Error messages
-            if($err != UPLOAD_ERR_OK && ENVIRONMENT == ENV_DEVELOPMENT){
-                switch($err){ 
-                    case UPLOAD_ERR_INI_SIZE:
-                        $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
-                        break;
-                    case UPLOAD_ERR_FORM_SIZE:
-                        $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
-                        break;
-                    case UPLOAD_ERR_PARTIAL:
-                        $message = "The uploaded file was only partially uploaded";
-                        break;
-                    case UPLOAD_ERR_NO_FILE:
-                        //$message = "No file was uploaded";
-                        break;
-                    case UPLOAD_ERR_NO_TMP_DIR:
-                        $message = "Missing a temporary folder";
-                        break;
-                    case UPLOAD_ERR_CANT_WRITE:
-                        $message = "Failed to write file to disk";
-                        break;
-                    case UPLOAD_ERR_EXTENSION:
-                        $message = "File upload stopped by extension";
-                        break;
-                    default:
-                        $message = "Unknown upload error";
-                        break;
-                }
-            }else if($err != UPLOAD_ERR_OK){
-                switch($err){ 
-                    case UPLOAD_ERR_INI_SIZE:
-                    case UPLOAD_ERR_FORM_SIZE:
-                        $message = "Failed to upload image. Try selecting a smaller image.";
-                        break;
-                    case UPLOAD_ERR_NO_FILE:
-                        break;
-                    case UPLOAD_ERR_PARTIAL:
-                    case UPLOAD_ERR_NO_TMP_DIR:
-                    case UPLOAD_ERR_CANT_WRITE:
-                    case UPLOAD_ERR_EXTENSION:
-                        $message = "Failed to upload file. Try again later.";
-                        break;
-                    default:
-                        $message = "Unknown upload error";
-                        break;
-                }
-            }
-
-            $err = isset($message) ? 'Upload error. '.$message : $err;
-
-            if($err === UPLOAD_ERR_OK){
-                if(strpos($_FILES['image']['type'], 'image') === 0){
-                    if(move_uploaded_file($tmp_name, './'.UPLOAD_TMP.$name)){
-                        //Update the temp files session variable for garbage collection later
-                        $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
-                        $tmp[] = $name;
-                        $this->session->temp_files = $tmp;
-
-                        //Store in session variable for later use
-                        $this->session->ann_img = $name;
-                    }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
-                }else $upload_err = 'Please upload a valid image file.';
-            }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
-
-            if(isset($upload_err)){
-                $this->form_validation->set_message('process_image_upload', $upload_err);
-                return FALSE;
-            }else return TRUE;
-        }catch(Exception $e){
-            if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
-            log_message('debug', $e->getMessage());
-        }
-    }
-
     //Template for Create and Update Methods
     protected function create_template($settings, $op, $slug = FALSE){
         $data = $settings;
@@ -182,7 +101,7 @@ class Announcement extends Navigation{
             array(
                 'field' =>  'image',
                 'label' =>  'Image',
-                'rules' =>  array('callback_process_image_upload')
+                'rules' =>  array('callback_process_image_upload[ann_img]')
             )
         );
         
@@ -590,7 +509,7 @@ class Announcement extends Navigation{
     }
     
     //Used for verifying and deleting announcements
-    protected function operation_template($op = FALSe, $model_method = FALSE){
+    protected function operation_template($op = FALSE, $model_method = FALSE){
         if($op !== FALSE && $model_method != FALSE){
             $this->session->op = $op;
             $this->session->res = $model_method;
@@ -598,23 +517,13 @@ class Announcement extends Navigation{
         }
     }
 
-    //Used to redirect user to previous paget they were on
-    protected function redirect_to($ref = FALSE){
-        if($ref != FALSE){
-            $route = substr($ref, strlen($ref) - stripos(strrev($ref), '/'));
-            if($route == 'announcement' || stripos($ref, 'announcement/all') !== FALSE){
-                redirect($this->agent->referrer());
-            }
-        }
-        redirect('announcement');
-    }
-
     public function verify($slug = NULL, $status = 0){
         if($this->session->user->type == ADMIN){
             self::operation_template(OP_VERIFY, $this->announcement_model->verify_announcement($slug, intval($status)));
         }
 
-        self::redirect_to($this->agent->referrer());
+        $routes = array('announcement', 'announcement/all');
+        $this->redirect_to($this->agent->referrer(), 'announcement', $routes);
     }
 
     public function delete($slug = NULL){
@@ -622,7 +531,8 @@ class Announcement extends Navigation{
             self::operation_template(OP_DELETE, $this->announcement_model->rem_announcement($slug));
         }
 
-        self::redirect_to($this->agent->referrer());
+        $routes = array('announcement', 'announcement/all');
+        $this->redirect_to($this->agent->referrer(), 'announcement', $routes);
     }
     
     public function delete_all(){
@@ -638,7 +548,8 @@ class Announcement extends Navigation{
             }
         }
 
-        self::redirect_to($this->agent->referrer());
+        $routes = array('announcement', 'announcement/all');
+        $this->redirect_to($this->agent->referrer(), 'announcement', $routes);
     }
     
     //Used by Display
@@ -668,9 +579,9 @@ class Announcement extends Navigation{
         //Redirect user when trying to directly access method
         if(stripos($this->agent->referrer(), 'announcement/display') !== FALSE){
             $appid = '0d93580d7ee4d84bdc222908774fc07b';
-            $query = 'toronto,ca';
+            $zip = 'M4M2A1,ca';
             $units = 'metric';
-            $link = 'http://api.openweathermap.org/data/2.5/weather?q='.$query.'&units='.$units.'&appid='.$appid;
+            $link = 'http://api.openweathermap.org/data/2.5/weather?zip='.$zip.'&units='.$units.'&appid='.$appid;
 
             try{
                 echo @file_get_contents($link);
