@@ -31,6 +31,14 @@
         echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
     }
     
+    $sp_link = base_url('dashboard');
+    $sp_title = 'Dashboard';
+    echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
+
+    $sp_link = base_url('settings');
+    $sp_title = 'Settings';
+    echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
+
     $sp_link = base_url('logout');
     $sp_title = 'Logout';
     echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
