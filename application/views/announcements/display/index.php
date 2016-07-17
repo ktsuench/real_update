@@ -40,28 +40,42 @@
 //------------------------------------------------------------------------//
 ?>
 <div id='display' class="flex flex-row flex-container center">
-    <div id="ann-col-1" class="scroll-content-parent">
-        <div class="scroll-content">
-            <?php 
-                if(!empty($announcement)){
-                    $announcement[] = array_shift($announcement);
-                    $announcement = array_reverse($announcement);
-                    build_slider($announcement, $upload_path);
-                }else default_slide();
-            ?>
+    <?php if($this->config->item('ru_settings')->content_scrolling->discontinuous){ ?>
+        <div class="scroll-content-parent">
+            <div class="scroll-content">
+                <?php 
+                    if(!empty($announcement)){
+                        $announcement[] = array_shift($announcement);
+                        $announcement = array_reverse($announcement);
+                        build_slider($announcement, $upload_path);
+                    }else default_slide();
+                ?>
+            </div>
         </div>
-    </div>
-    <div id="ann-col-2" class="scroll-content-parent">
-        <div class="scroll-content">
-            <?php 
-                if(!empty($announcement)){
-                    $announcement[] = array_shift($announcement);
-                    build_slider($announcement, $upload_path);
-                }else default_slide();
-            ?>
+        <div class="scroll-content-parent">
+            <div class="scroll-content">
+                <?php 
+                    if(!empty($announcement)){
+                        $announcement[] = array_shift($announcement);
+                        build_slider($announcement, $upload_path);
+                    }else default_slide();
+                ?>
+            </div>
         </div>
-    </div>
-    <div id="ann-col-3" class="flex flex-col">
+    <?php }else{ ?>
+        <div class="scroll-content-parent">
+            <div class="scroll-content">
+                <?php 
+                    if(!empty($announcement)){
+                        $announcement[] = array_shift($announcement);
+                        $announcement = array_reverse($announcement);
+                        build_slider($announcement, $upload_path);
+                    }else default_slide();
+                ?>
+            </div>
+        </div>
+    <?php } ?>
+    <div class="flex flex-col">
         <div id="datetime-weather" class="flex-panel side-content">
             <div class="flex flex-col flex-center">
                 <div id='datetime' class='text-center'>
@@ -93,5 +107,7 @@
     var update_display = '<?php echo base_url('announcement/display/update'); ?>';
     var update_weather = '<?php echo base_url('announcement/display/update/weather'); ?>';
     var upload_path = '<?php echo $upload_path; ?>';
+    var set_scroll_type = '<?php echo $this->config->item('ru_settings')->content_scrolling->discontinuous; ?>';
+    var set_scroll_speed = '<?php echo $this->config->item('ru_settings')->content_scrolling->speed;; ?>';
 </script>
 <script src="<?php echo base_url(''); ?>assets/js/ann_disp.js"></script>

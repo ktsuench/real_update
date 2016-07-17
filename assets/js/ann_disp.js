@@ -48,14 +48,14 @@ function scroll_start(frame){
      * @type {Boolean}
      */
     //TODO: bring this over to the php page so that the saved setting can be assigned.
-    var discontinuous = true;
+    var discontinuous = set_scroll_type;
 
     /**
      * Scrolling refresh rate if discontinuous.
      * @type {Number}
      */
     //TODO: bring this over to the php page so that the saved setting can be assigned.
-    var speed = 1000 * 5;
+    var speed = 1000 * set_scroll_speed;
 
     if(containers.length > 0){
         containers.forEach( function(container, index) {
@@ -241,7 +241,7 @@ function update_start(class_name){
                     //Reset all the scroll timers that are running
                     window.setTimeout(function(){
                         reset_scroll_timers();
-                    }, 125);
+                    }, 500);
 
                     console.log('Updated content @ ' + (new Date()));
                 }else console.log('Error updating display. Server Error: ' + xhr.status);
@@ -315,7 +315,7 @@ function refresh_weather(id){
 
 //Datetime constants
 var month_names = [ 'Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec' ];
-var day_names = ['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+var day_names = ['Sun','Mon','Tues','Wed','Thurs','Fri','Sat'];
 
 /**
  * Updates the date on the display
