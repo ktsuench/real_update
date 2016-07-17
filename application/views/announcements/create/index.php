@@ -13,7 +13,7 @@
             echo '</pre>';
         }*/
 //------------------------------------------------------------------------//
-        //Article title
+        //Announcement title
         echo form_label('Title', 'title').LINEBREAK;
         
         //Title Settings
@@ -35,7 +35,7 @@
         echo form_input($data).LINEBREAK;
         echo '<span id="title_ch_count"></span>'.LINEBREAK;
 //------------------------------------------------------------------------//
-        //Article content
+        //Announcement content
         echo form_label('Content', 'content').LINEBREAK;
         
         //Content Settings
@@ -70,7 +70,7 @@
         
         echo form_dropdown('type', $type_options, !empty($ann_type) ? $ann_type : $type_options['daily']).LINEBREAK;
 //------------------------------------------------------------------------//
-        //Announcement Type
+        //Announcement Image
         echo form_label('Image', 'image').LINEBREAK;
         
         //Image Settings
