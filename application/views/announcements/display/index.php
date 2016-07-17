@@ -107,7 +107,7 @@
     var update_display = '<?php echo base_url('announcement/display/update'); ?>';
     var update_weather = '<?php echo base_url('announcement/display/update/weather'); ?>';
     var upload_path = '<?php echo $upload_path; ?>';
-    var set_scroll_type = '<?php echo $this->config->item('ru_settings')->content_scrolling->discontinuous; ?>';
+    var set_scroll_type = <?php echo $this->config->item('ru_settings')->content_scrolling->discontinuous ? 'true' : 'false'; ?>;
     var set_scroll_speed = '<?php echo $this->config->item('ru_settings')->content_scrolling->speed;; ?>';
 </script>
 <script src="<?php echo base_url(''); ?>assets/js/ann_disp.js"></script>

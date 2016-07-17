@@ -47,14 +47,12 @@ function scroll_start(frame){
      * Scrolling type as set in system settings.
      * @type {Boolean}
      */
-    //TODO: bring this over to the php page so that the saved setting can be assigned.
     var discontinuous = set_scroll_type;
 
     /**
      * Scrolling refresh rate if discontinuous.
      * @type {Number}
      */
-    //TODO: bring this over to the php page so that the saved setting can be assigned.
     var speed = 1000 * set_scroll_speed;
 
     if(containers.length > 0){
