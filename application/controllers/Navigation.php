@@ -49,7 +49,48 @@ class Navigation extends CI_Controller{
         $this->load->view('templates/footer');
     }
 
-    //Used to redirect user to previous paget they were on
+    /**
+     * Verfies the caller can access the called
+     * @param  string   $caller  name of the calling class/function/method
+     * @param  mixed    $allowed class(s), function(s), method(s), object(s) names
+     * @return boolean           access verification result
+     */
+    protected function check_access($caller = '', $allowed = ''){
+        if(is_string($allowed)){
+            $result = stripos($caller, $allowed) !== FALSE;
+        }else if(is_array($allowed)){
+            $i = 0;
+            while((!isset($result) || $result === FALSE) && $i < count($allowed)){
+                $result = stripos($caller, $allowed[$i++]);
+            }
+        }else if(is_bool($allowed)){
+            $result = $class;
+        }else{
+            throw new Exception('Incorrect type for $allowed parameter.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Verifies that the calling class and function can access the called object/class/function/method
+     * @param  mixed    $class    class(s) that can access the called object/class/function/method
+     * @param  mixed    $function function(s) that can access the called object/class/function/method
+     * @param  string   $path     location to be redirected to
+     * @return null
+     */
+    protected function allow_access($class = TRUE, $function = TRUE, $path = ''){
+        $caller = debug_backtrace();
+
+        $class_allowed = self::check_access($caller[2]['class'], $class);
+        $function_allowed = self::check_access($caller[2]['function'], $function);
+
+        if($class_allowed === FALSE || $function_allowed === FALSE){
+            redirect($path);
+        }
+    }
+
+    //Used to redirect user to previous page they were on
     protected function redirect_to($ref = FALSE, $default = '', $routes = array()){
         if($ref != FALSE && is_array($routes) && count($routes) > 0){
             $route = substr($ref, -(strlen($ref) - strlen($this->config->item('base_url'))) + 1);
