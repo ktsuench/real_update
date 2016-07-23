@@ -51,8 +51,8 @@ class Navigation extends CI_Controller{
 
     /**
      * Verfies the caller can access the called
-     * @param  string   $caller  name of the calling class/function/method
-     * @param  mixed    $allowed class(s), function(s), method(s), object(s) names
+     * @param  string   $caller  referrer
+     * @param  mixed    $allowed referee(s)
      * @return boolean           access verification result
      */
     protected function check_access($caller = '', $allowed = ''){
@@ -86,6 +86,19 @@ class Navigation extends CI_Controller{
         $function_allowed = self::check_access($caller[2]['function'], $function);
 
         if($class_allowed === FALSE || $function_allowed === FALSE){
+            redirect($path);
+        }
+    }
+
+    /**
+     * Verifies that the referrer can access the requested content
+     * @param  string $referrer request caller
+     * @param  mixed  $referee  routes that can access the requested content
+     * @param  string $path     location to be redirected to
+     * @return null
+     */
+    protected function allow_access_route($referrer = '', $referee = '', $path = ''){
+        if(self::check_access($this->agent->referrer(), $referee) === FALSE){
             redirect($path);
         }
     }
