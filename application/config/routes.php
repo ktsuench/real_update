@@ -52,28 +52,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'navigation';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
-//Anouncement Controller
+//------------------------------------------------------------------------//
+//Announcement Controller
 $route['announcement'] = 'announcement';
 $route['announcement/all'] = 'announcement/index/TRUE';
 $route['announcement/create'] = 'announcement/create';
 if(ENVIRONMENT == 'development') $route['announcement/create/batch'] = 'announcement/create_batch';
 $route['announcement/update'] = 'announcement/update';
 $route['announcement/update/(.+)'] = 'announcement/update/$1';
-$route['announcement/schedule'] = 'announcement/schedule';
 $route['announcement/verify'] = 'announcement/verify';
 $route['announcement/verify/(.+)'] = 'announcement/verify/$1/$2';
 $route['announcement/delete'] = 'announcement/delete';
+$route['announcement/delete/(.+)'] = 'announcement/delete/$1';
 $route['announcement/delete/all'] = 'announcement/delete_all';
-$route['announcement/display'] = 'announcement/display';
-//Anouncement Controller Methods (no direct access allowed)
+$route['display'] = 'announcement/display';
+//Announcement Controller Methods (no direct access allowed)
 $route['announcement/get_calendar'] = 'announcement/get_calendar';
 $route['announcement/get_calendar/(.+)'] = 'announcement/get_calendar';
 $route['announcement/check_datetime'] = 'announcement/get_calendar';
 $route['announcement/check_datetime/(.+)'] = 'announcement/get_calendar';
-$route['announcement/display/update'] = 'announcement/update_list';
-$route['announcement/display/update/weather'] = 'announcement/update_weather';
-//Anouncement Controller General
-$route['announcement/(:any)'] = 'announcement';
+$route['display/update'] = 'announcement/update_list';
+$route['display/update/weather'] = 'announcement/update_weather';
+$route['display/update/(:any)'] = '404';
+//Announcement Controller General
+$route['announcement/display/(:any)'] = '404';
+$route['announcement/(:any)'] = '404';
+$route['display/(:any)'] = '404';
+//------------------------------------------------------------------------//
 //User Controller
 $route['user'] = 'user';
 $route['user/create'] = 'user/create';
@@ -81,18 +86,27 @@ $route['user/create/batch'] = 'user/create_batch';
 $route['user/update'] = 'user/update';
 $route['user/update/(.+)'] = 'user/update/$1';
 $route['user/delete'] = 'user/delete';
+$route['user/delete/(.+)'] = 'user/delete/$1';
+$route['login'] = 'user/login';
+$route['logout'] = 'user/logout';
 //User Controller Methods (no direct access allowed)
 $route['user/verify_pass'] = 'user/verify_pass';
 //User Controller General
-$route['user/(:any)'] = 'user';
-$route['login'] = 'user/login';
-$route['logout'] = 'user/logout';
+$route['user/create/(:any)'] = '404';
+$route['user/(:any)'] = '404';
+$route['login/(:any)'] = '404';
+$route['logout/(:any)'] = '404';
+//------------------------------------------------------------------------//
 //Dashboard Controller
 $route['dashboard'] = 'dashboard';
 $route['settings'] = 'dashboard/settings';
+//Dashboard Controller General
+$route['dashboard/(:any)'] = '404';
+$route['settings/(:any)'] = '404';
+//------------------------------------------------------------------------//
 //Navigation Controller
 /*$route['asset'] = 'navigation/load_asset';
 $route['asset/(.+)'] = 'navigation/load_asset';*/
 //Navigation Controller General
 $route['(:any)'] = 'navigation/load_page/$1';
-$route['(:any)/(:)any)'] = 'navigation/load_page/$1/$2';
+$route['(:any)/(:any)'] = 'navigation/load_page/$1/$2';
