@@ -104,8 +104,8 @@
 </div>
 <link rel="stylesheet" type="text/css" href='<?php echo base_url(''); ?>assets/vendor/weather_icons/css/weather-icons.min.css'>
 <script>
-    var update_display = '<?php echo base_url('announcement/display/update'); ?>';
-    var update_weather = '<?php echo base_url('announcement/display/update/weather'); ?>';
+    var update_display = '<?php echo base_url('display/update'); ?>';
+    var update_weather = '<?php echo base_url('display/update/weather'); ?>';
     var upload_path = '<?php echo $upload_path; ?>';
     var set_scroll_type = <?php echo $this->config->item('ru_settings')->content_scrolling->discontinuous ? 'true' : 'false'; ?>;
     var set_scroll_speed = '<?php echo $this->config->item('ru_settings')->content_scrolling->speed;; ?>';
