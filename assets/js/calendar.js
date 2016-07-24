@@ -70,7 +70,7 @@ function attach_date_dropdown_events(year_id, month_id, calendar_id, date_id, se
         var el = document.getElementById(id);
         el.onchange = function(y_id, m_id, c_id, d_id, s_id_prefix){
             jump_to_date(y_id, m_id, c_id, d_id, s_id_prefix);
-        }.bind(el, year_id, month_id, calendar_id, date_id, selected_id_prefix)
+        }.bind(el, year_id, month_id, calendar_id, date_id, selected_id_prefix);
     });
 }
 
