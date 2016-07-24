@@ -223,9 +223,8 @@ class User extends Navigation{
         }
     }
     
-    //TODO: Check that the user to be removed is not currently logged in
     public function delete($email = NULL){
-        if(!is_null($email) && $this->session->user->type == ADMIN){
+        if(!is_null($email) && $this->session->user->type == ADMIN && $email !== $this->session->user->email){
             $email = base64_decode($email);
             
             //Check that the account to be removed is no the current session owner
@@ -240,27 +239,24 @@ class User extends Navigation{
     
     public function verify_pass($pass, $extra){
         //Redirect user when trying to directly access method
-        if(stripos($this->agent->referrer(), 'login') !== FALSE ||
-            stripos($this->agent->referrer(), 'user/update') !== FALSE){
-            $extra = explode(',', $extra);
-            $field = $extra[0]; $method = $extra[1];
-            
-            $email = isset($this->form_validation->get_data()[$field], $this->form_validation->get_data()[$field]['postdata'])
-                ? $this->form_validation->get_data()[$field]['postdata']
-                : FALSE;
-            $user = $this->user_model->get_user($email);
-            $hash = isset($user) ? $user['hash'] : FALSE;
+        $this->allow_access_route($this->agent->referrer(), array('login', 'user/update'), 'user');
+        
+        $extra = explode(',', $extra);
+        $field = $extra[0]; $method = $extra[1];
+        
+        $email = isset($this->form_validation->get_data()[$field], $this->form_validation->get_data()[$field]['postdata'])
+            ? $this->form_validation->get_data()[$field]['postdata']
+            : FALSE;
+        $user = $this->user_model->get_user($email);
+        $hash = isset($user) ? $user['hash'] : FALSE;
 
-            $res = password_verify($pass, $hash);
-            if($res === FALSE){
-                $err = $method == 'update' ? 'You provided the incorrect current password.' : 'Incorrect Email or Password.';
-                $this->form_validation->set_message('verify_pass', $err);
-            }
-            
-            return $res;
-        }else{
-            redirect('user');
+        $res = password_verify($pass, $hash);
+        if($res === FALSE){
+            $err = $method == 'update' ? 'You provided the incorrect current password.' : 'Incorrect Email or Password.';
+            $this->form_validation->set_message('verify_pass', $err);
         }
+        
+        return $res;
     }
     
     public function login(){
