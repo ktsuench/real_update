@@ -170,20 +170,37 @@ class Navigation extends CI_Controller{
         return isset($message) ? 'Upload error. '.$message : $err;
     }
     
-    public function process_image_upload($img, $sess_var = ''){
+    //Added in upload option type (automatic/manual)
+    //TODO: Test that the automatic upload option works
+    public function process_image_upload($img, $extra = ''){
         //Redirect user when trying to directly access method
-        if(stripos($this->agent->referrer(), 'announcement/create') !== FALSE ||
-            stripos($this->agent->referrer(), 'announcement/update') !== FALSE ||
-            stripos($this->agent->referrer(), 'settings') !== FALSE){
-            try{
-                $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+        self::allow_access_route($this->agent->referrer(), array('announcement/create', 'announcement/update', 'settings'), 'dashboard');
 
-                $tmp_name = $_FILES['image']['tmp_name'];
-                $name = basename($_FILES['image']['name']);
-                $err = self::upload_error_check($err);
+        try{
+            //Default values
+            $name = '';
+            $tmp_upload = TRUE;
+            $dir = '';
+            $sess_var = '';
 
-                if($err === UPLOAD_ERR_OK){
-                    if(strpos($_FILES['image']['type'], 'image') === 0){
+            //Passed in arguments
+            if(!empty($extra)){
+                $extra = explode(',', $extra);
+                if(array_key_exists('0', $extra)) $name = strval($extra[0]);
+                if(array_key_exists('1', $extra)) $tmp_upload = boolval($extra[1]);
+                if(array_key_exists('2', $extra)) $dir = strval($extra[2]);
+                if(array_key_exists('3', $extra)) $sess_var = strval($extra[3]);
+            }
+
+            $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+            $err = self::upload_error_check($err);
+
+            if($err === UPLOAD_ERR_OK){
+                if(strpos($_FILES['image']['type'], 'image') === 0){
+                    $tmp_name = $_FILES['image']['tmp_name'];
+                    $name = empty($name) ? basename($_FILES['image']['name']) : $name;
+
+                    if($tmp_upload === TRUE){
                         if(move_uploaded_file($tmp_name, './'.UPLOAD_TMP.$name)){
                             //Update the temp files session variable for garbage collection later
                             $tmp = isset($this->session->temp_files) ? $this->session->temp_files : array();
@@ -191,25 +208,26 @@ class Navigation extends CI_Controller{
                             $this->session->temp_files = $tmp;
 
                             //Store in session variable for later use
-                            var_dump($sess_var);
                             if(trim($sess_var) == '') throw new Exception('Empty Session Variable Name');
-                            $_SESSION[$sess_var] = $name;
+                            $this->session->$sess_var = $name;
                         }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
-                    }else $upload_err = 'Please upload a valid image file.';
-                }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
+                    }else if($tmp_upload === FALSE){
+                        if(move_uploaded_file($tmp_name, './'.$dir.$name)){
+                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
+                    }
+                }else $upload_err = 'Please upload a valid image file.';
+            }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
 
-                if(isset($upload_err)){
-                    $this->form_validation->set_message('process_image_upload', $upload_err);
-                    return FALSE;
-                }else return TRUE;
-            }catch(Exception $e){
-                if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
-                log_message('debug', $e->getMessage());
-            }
-        }else{
-            redirect('dashboard');
+            if(isset($upload_err)){
+                $this->form_validation->set_message('process_image_upload', $upload_err);
+                return FALSE;
+            }else return TRUE;
+        }catch(Exception $e){
+            if(ENVIRONMENT != ENV_PRODUCTION) throw $e;
+            log_message('debug', $e->getMessage());
         }
     }
+
     //Used to load assets from within views (scripts, stylesheets, images)
     /*public function load_asset($asset = FALSE){
         if(!empty($this->uri->segment(3))){
