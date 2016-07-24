@@ -74,33 +74,37 @@ class Navigation extends CI_Controller{
 
     /**
      * Verifies that the calling class and function can access the called object/class/function/method
-     * @param  mixed    $class    class(s) that can access the called object/class/function/method
-     * @param  mixed    $function function(s) that can access the called object/class/function/method
-     * @param  string   $path     location to be redirected to
-     * @return null
+     * @param  mixed    $class              class(s) that can access the called object/class/function/method
+     * @param  mixed    $function           function(s) that can access the called object/class/function/method
+     * @param  string   $path               location to be redirected to
+     * @param  boolean  $manual_redirect    function redirection handling option
+     * @return mixed
      */
-    protected function allow_access($class = TRUE, $function = TRUE, $path = ''){
+    protected function allow_access_class($class = TRUE, $function = TRUE, $path = '', $manual_redirect = FALSE){
         $caller = debug_backtrace();
 
-        $class_allowed = self::check_access($caller[2]['class'], $class);
-        $function_allowed = self::check_access($caller[2]['function'], $function);
+        $class_allowed = @self::check_access($caller[2]['class'], $class);
+        $function_allowed = @self::check_access($caller[2]['function'], $function);
 
         if($class_allowed === FALSE || $function_allowed === FALSE){
-            redirect($path);
-        }
+            if($manual_redirect === FALSE) redirect($path);
+            else return FALSE;
+        }else return TRUE;
     }
 
     /**
      * Verifies that the referrer can access the requested content
-     * @param  string $referrer request caller
-     * @param  mixed  $referee  routes that can access the requested content
-     * @param  string $path     location to be redirected to
-     * @return null
+     * @param  string   $referrer           request caller
+     * @param  mixed    $referee            routes that can access the requested content
+     * @param  string   $path               location to be redirected to
+     * @param  boolean  $manual_redirect    function redirection handling option
+     * @return mixed
      */
-    protected function allow_access_route($referrer = '', $referee = '', $path = ''){
+    protected function allow_access_route($referrer = '', $referee = '', $path = '', $manual_redirect = FALSE){
         if(self::check_access($this->agent->referrer(), $referee) === FALSE){
-            redirect($path);
-        }
+            if($manual_redirect === FALSE) redirect($path);
+            else return FALSE;
+        }else return TRUE;
     }
 
     //Used to redirect user to previous page they were on
