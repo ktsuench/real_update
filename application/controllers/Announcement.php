@@ -301,7 +301,7 @@ class Announcement extends Navigation{
             $this->form_validation->set_rules('dateinterval', 'Date Interval','callback_check_dateinterval');
             $this->form_validation->run();
         }catch(Exception $e){
-            //if(ENVIRONMENT != ENV_PRODUCTION) echo $e->getMessage();
+            if(ENVIRONMENT != ENV_PRODUCTION) echo $e->getMessage();
         }
 
         $this->form_validation->set_data($_POST);
@@ -310,13 +310,10 @@ class Announcement extends Navigation{
         if($this->form_validation->run() == FALSE){
             $this->load_view('announcements/create', $data, TRUE);
         }else{
-            $this->form_validation->set_data($_POST['image']);
+            $this->form_validation->set_data($_POST);
             $this->form_validation->set_rules('image', 'Image', 'callback_process_image_upload[,TRUE,,ann_img]');
             if($this->form_validation->run() == FALSE) $this->load_view('announcements/create', $data, TRUE);
 
-            /**
-             * TODO: fixup the submission process
-             */
             $create = array(
                 'op'        =>  $op,
                 'verified'  =>  $this->session->user->type == ADMIN ? 1 : 0,
