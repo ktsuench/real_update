@@ -218,6 +218,9 @@ class Navigation extends CI_Controller{
                         }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file from '.$field.'.' : $err;
                     }else if($tmp_upload === FALSE){
                         if(move_uploaded_file($tmp_name, './'.$dir.$name)){
+                            //Store in session variable for later use
+                            if(trim($sess_var) == '') throw new Exception('Empty Session Variable Name for '.$field.'.');
+                            $this->session->$sess_var = $name;
                         }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file from '.$field.'.' : $err;
                     }
                 }else $upload_err = 'Please upload a valid image file for'.$field.'.';
