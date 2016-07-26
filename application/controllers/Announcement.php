@@ -301,7 +301,7 @@ class Announcement extends Navigation{
             $this->form_validation->set_rules('dateinterval', 'Date Interval','callback_check_dateinterval');
             $this->form_validation->run();
         }catch(Exception $e){
-            if(ENVIRONMENT != ENV_PRODUCTION) echo $e->getMessage();
+            //if(ENVIRONMENT != ENV_PRODUCTION) echo $e->getMessage();
         }
 
         $this->form_validation->set_data($_POST);
@@ -310,8 +310,9 @@ class Announcement extends Navigation{
         if($this->form_validation->run() == FALSE){
             $this->load_view('announcements/create', $data, TRUE);
         }else{
+            //TODO: Cleanup image if submission of announcement fails
             $this->form_validation->set_data($_POST);
-            $this->form_validation->set_rules('image', 'Image', 'callback_process_image_upload[,TRUE,,ann_img]');
+            $this->form_validation->set_rules('image', 'Image', 'callback_process_image_upload[image,,'.TRUE.',,ann_img]');
             if($this->form_validation->run() == FALSE) $this->load_view('announcements/create', $data, TRUE);
 
             $create = array(
@@ -325,18 +326,16 @@ class Announcement extends Navigation{
 
             //Check if existing image is to be removed
             if($this->input->post('remove_image') !== NULL && boolval($this->input->post('remove_image')) == TRUE){
-                $create['remove_image'] = $remove_image = TRUE;
-            }else $create['remove_image'] = $remove_image = FALSE;
+                $create['remove_image'] = TRUE;
+            }else $create['remove_image'] = FALSE;
 
             //Set image if there is one
             if(isset($this->session->ann_img)){
                 $create['image'] = $this->session->ann_img;
 
                 unset($_SESSION['ann_img']);
-            }else if($remove_image == TRUE){
-                if(isset($create['image'])) unset($create['image']);
-            }else if(isset($this->session->ann_create['image'])){
-                $create['image'] = $this->session->ann_create['image'];
+            /*}else if(isset($this->session->ann_create['image'])){
+                $create['image'] = $this->session->ann_create['image'];*/
             }else if(!empty($data['ann_data'])){
                 $create['image'] = $data['ann_data']->image;
             }
