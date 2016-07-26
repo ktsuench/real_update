@@ -21,7 +21,7 @@ class Navigation extends CI_Controller{
     public function load_page($page, $auth = FALSE){
         if(isset($this->session->data)){
            $data = $this->session->data;
-           unset($this->session->data);
+           unset($_SESSION['data']);
         }
         if(!isset($data['title'])) $data['title'] = strtoupper(substr($page, 0, 1)).substr($page, 1);
         

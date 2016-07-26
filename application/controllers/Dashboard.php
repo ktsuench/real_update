@@ -201,12 +201,12 @@ class Dashboard extends Navigation{
 
             if(isset($this->session->mimg)){
                 $img->m = $this->session->mimg;
-                unset($this->session->mimg);
+                unset($_SESSION['mimg']);
             }
 
             if(isset($this->session->eimg)){
                 $img->e = $this->session->eimg;
-                unset($this->session->eimg);
+                unset($_SESSION['eimg']);
             }
 
             //Build Settings
