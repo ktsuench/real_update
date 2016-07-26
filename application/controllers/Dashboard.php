@@ -148,7 +148,7 @@ class Dashboard extends Navigation{
                 array(
                     'field' =>  'speed',
                     'label' =>  'Speed',
-                    'rules' =>  array('required', 'integer')
+                    'rules' =>  array('required', 'numeric', 'greater_than[0]')
                 )
             );
 
@@ -237,7 +237,7 @@ class Dashboard extends Navigation{
                 ),
                 'content_scrolling' =>  (object) array(
                     'discontinuous' =>  TRUE, //$this->input->post('dtype'),
-                    'speed'         =>  intval($this->input->post('speed'))
+                    'speed'         =>  floatval($this->input->post('speed'))
                 )
             );
 
