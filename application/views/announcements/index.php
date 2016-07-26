@@ -25,7 +25,7 @@
                 <th>Author</th>
                 <th>Start Date &amp; Time</th>
                 <th>End Date &amp; Time</th>
-                <th></th>
+                <?php if($_SESSION['user']->type == ADMIN){ ?><th></th><?php } ?>
                 <th></th>
                 <th></th>
             </tr>
@@ -38,10 +38,12 @@
                     <td><?php echo $a['author']; ?></td>
                     <td><?php echo $a['start_datetime']; ?></td>
                     <td><?php echo $a['end_datetime']; ?></td>
+                    <?php if($_SESSION['user']->type == ADMIN){ ?>
                     <td>
                         <?php $word = $a['verified'] ? 'Invalidate' : 'Validate'; ?>
                         <a href="<?php echo base_url('announcement/verify/'.$a['slug'].'/'.$a['verified']); ?>"><?php echo $word; ?> announcement</a>
                     </td>
+                    <?php } ?>
                     <td>
                         <a href="<?php echo base_url('announcement/update/'.$a['slug']); ?>">Update announcement</a>
                     </td>
