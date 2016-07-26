@@ -35,9 +35,11 @@
     $sp_title = 'Dashboard';
     echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
 
-    $sp_link = base_url('settings');
-    $sp_title = 'Settings';
-    echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
+    if($_SESSION['user']->type == ADMIN){
+        $sp_link = base_url('settings');
+        $sp_title = 'Settings';
+        echo anchor($sp_link, $sp_title, 'title="'.$sp_title.'"').LINEBREAK;
+    }
 
     $sp_link = base_url('logout');
     $sp_title = 'Logout';
