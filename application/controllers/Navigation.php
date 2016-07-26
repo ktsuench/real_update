@@ -178,6 +178,7 @@ class Navigation extends CI_Controller{
 
         try{
             //Default values
+            $field = '';
             $name = '';
             $tmp_upload = TRUE;
             $dir = '';
@@ -186,19 +187,23 @@ class Navigation extends CI_Controller{
             //Passed in arguments
             if(!empty($extra)){
                 $extra = explode(',', $extra);
-                if(array_key_exists('0', $extra)) $name = strval($extra[0]);
-                if(array_key_exists('1', $extra)) $tmp_upload = boolval($extra[1]);
-                if(array_key_exists('2', $extra)) $dir = strval($extra[2]);
-                if(array_key_exists('3', $extra)) $sess_var = strval($extra[3]);
+                if(array_key_exists('0', $extra)) $field = strval($extra[0]);
+                if(array_key_exists('1', $extra)) $name = strval($extra[1]);
+                if(array_key_exists('2', $extra)) $tmp_upload = boolval($extra[2]);
+                if(array_key_exists('3', $extra)) $dir = strval($extra[3]);
+                if(array_key_exists('4', $extra)) $sess_var = strval($extra[4]);
             }
 
-            $err = array_key_exists('image', $_FILES) ? $_FILES['image']['error'] : UPLOAD_ERR_NO_FILE;
+            if(empty($field)) throw new Exception('Field name not provided for '.$field.'.');
+
+            $err = array_key_exists($field, $_FILES) ? $_FILES[$field]['error'] : UPLOAD_ERR_NO_FILE;
             $err = self::upload_error_check($err);
 
             if($err === UPLOAD_ERR_OK){
-                if(strpos($_FILES['image']['type'], 'image') === 0){
-                    $tmp_name = $_FILES['image']['tmp_name'];
-                    $name = empty($name) ? basename($_FILES['image']['name']) : $name;
+                if(strpos($_FILES[$field]['type'], 'image') === 0){
+                    $tmp_name = $_FILES[$field]['tmp_name'];
+                    $ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+                    $name = empty($name) ? basename($_FILES[$field]['name']) : $name.'.'.$ext;
 
                     if($tmp_upload === TRUE){
                         if(move_uploaded_file($tmp_name, './'.UPLOAD_TMP.$name)){
@@ -208,14 +213,14 @@ class Navigation extends CI_Controller{
                             $this->session->temp_files = $tmp;
 
                             //Store in session variable for later use
-                            if(trim($sess_var) == '') throw new Exception('Empty Session Variable Name');
+                            if(trim($sess_var) == '') throw new Exception('Empty Session Variable Name for '.$field.'.');
                             $this->session->$sess_var = $name;
-                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
+                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file from '.$field.'.' : $err;
                     }else if($tmp_upload === FALSE){
                         if(move_uploaded_file($tmp_name, './'.$dir.$name)){
-                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file.' : $err;
+                        }else $upload_err = (ENVIRONMENT == ENV_DEVELOPMENT) ? 'Could not move uploaded file from '.$field.'.' : $err;
                     }
-                }else $upload_err = 'Please upload a valid image file.';
+                }else $upload_err = 'Please upload a valid image file for'.$field.'.';
             }else $upload_err = $err === UPLOAD_ERR_NO_FILE ? NULL : $err;
 
             if(isset($upload_err)){
