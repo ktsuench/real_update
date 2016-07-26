@@ -275,7 +275,7 @@ class User extends Navigation{
                 array(
                     'field' =>  'password',
                     'label' =>  'Password',
-                    'rules' =>  array('min_length[8]','max_length[30]','required','callback_verify_pass[email,login]')
+                    'rules' =>  array('required','callback_verify_pass[email,login]')
                 )           
             );
             
