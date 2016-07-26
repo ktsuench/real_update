@@ -17,4 +17,6 @@ defined('ADMIN')            OR define('ADMIN', 'admin');
 
 defined('UPLOAD_TMP')       OR define('UPLOAD_TMP', 'uploads/tmp/');
 defined('UPLOAD_ANN')       OR define('UPLOAD_ANN', 'uploads/ann_content/');
+
+defined('SETTINGS_PATH')	OR define('SETTINGS_PATH', 'application/config/app/');
 ?>
