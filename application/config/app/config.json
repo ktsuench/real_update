@@ -1,0 +1,30 @@
+{
+    "institution": "Riverdale Collegiate Institute",
+    "message": {
+        "title": "Studia Adolescentiam Alunt",
+        "content": "Education Nourishes Youth",
+        "image": ""
+    },
+    "emergency": {
+        "title": "",
+        "content": "",
+        "image": ""
+    },
+    "colour": {
+        "foreground": "#ffffff",
+        "background": "#000000"
+    },
+    "location": {
+        "city": "Toronto",
+        "country": "Canada",
+        "zip": "M4M2A1"
+    },
+    "weather": {
+        "search_type": 11,
+        "units": "metric"
+    },
+    "content_scrolling": {
+        "discontinuous": true,
+        "speed": 5
+    }
+}
