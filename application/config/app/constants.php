@@ -1,9 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-defined('ENV_DEVELOPMENT')   OR define('ENV_DEVELOPMENT' , 'development');
-defined('ENV_TESTING')   OR define('ENV_TESTING' , 'testing');
+defined('ENV_DEVELOPMENT')	OR define('ENV_DEVELOPMENT' , 'development');
+defined('ENV_TESTING')		OR define('ENV_TESTING' , 'testing');
 defined('ENV_PRODUCTION')   OR define('ENV_PRODUCTION' , 'production');
+defined('ENV_LOC_LOCAL')	OR define('ENV_LOC_LOCAL' , 'local');
+defined('ENV_LOC_REMOTE')   OR define('ENV_LOC_REMOTE' , 'remote');
 
 defined('OP_CREATE')        OR define('OP_CREATE', 0);
 defined('OP_UPDATE')        OR define('OP_UPDATE', 1);

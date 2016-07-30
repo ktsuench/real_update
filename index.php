@@ -54,6 +54,7 @@
  * NOTE: If you change these, also change the error_reporting() code below
  */
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+	define('SERVER_HOST_LOCATION', isset($_SERVER['CI_ENV_LOC']) ? $_SERVER['CI_ENV_LOC'] : 'local');
 
 /*
  *---------------------------------------------------------------
