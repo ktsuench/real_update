@@ -16,6 +16,6 @@
     SetEnv CI_ENV development
     #SetEnv CI_ENV testing
     #SetEnv CI_ENV production
-    #SetEnv CI_ENV_LOC local
-    SetEnv CI_ENV_LOC remote
+    SetEnv CI_ENV_LOC local
+    #SetEnv CI_ENV_LOC remote
 </IfModule>
