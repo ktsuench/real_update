@@ -63,8 +63,8 @@ $route['announcement/update/(.+)'] = 'announcement/update/$1';
 $route['announcement/verify'] = 'announcement/verify';
 $route['announcement/verify/(.+)'] = 'announcement/verify/$1/$2';
 $route['announcement/delete'] = 'announcement/delete';
-$route['announcement/delete/(.+)'] = 'announcement/delete/$1';
 $route['announcement/delete/all'] = 'announcement/delete_all';
+$route['announcement/delete/(.+)'] = 'announcement/delete/$1';
 $route['display'] = 'announcement/display';
 //Announcement Controller Methods (no direct access allowed)
 $route['announcement/get_calendar'] = 'announcement/get_calendar';

@@ -7,7 +7,7 @@
     }
     
     //echo anchor(base_url(''), 'View ', 'title="View "').LINEBREAK;
-    echo anchor(base_url('announcement/display'), 'View Announcements', 'title="View Announcements"').LINEBREAK;
+    echo anchor(base_url('display'), 'View Announcements', 'title="View Announcements"').LINEBREAK;
     echo anchor(base_url('about'), 'About', 'title="About"').LINEBREAK;
 
     if(!isset($_SESSION['user'])){
