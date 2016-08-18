@@ -104,6 +104,8 @@ Class Announcement_Model extends CI_Model{
             foreach($rows as $record){
                 foreach($record as $key => $val) $data[$i][$key] = $val;
                 
+                $data[$i]['verified'] = intval($data[$i]['verified']);
+
                 //Find a unique slug that isn't already in use
                 $base = url_title($data[$i]['title'],'-',TRUE);
                 $data[$i]['slug'] = $base.'-'.(new DateTime())->getTimestamp();

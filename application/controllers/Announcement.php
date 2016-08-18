@@ -440,9 +440,11 @@ class Announcement extends Navigation{
                     'title'             =>  $line[0],
                     'content'           =>  $line[1],
                     'type'              =>  $line[2],
-                    'author'            =>  $line[3],
-                    'start_datetime'    =>  $line[4],
-                    'end_datetime'      =>  $line[5]
+                    'image'             =>  $line[3],
+                    'author'            =>  $line[4],
+                    'verified'          =>  $line[5],
+                    'start_datetime'    =>  $line[6],
+                    'end_datetime'      =>  $line[7]
                 );
             }
             

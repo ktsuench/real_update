@@ -33,8 +33,8 @@
         <tbody>
             <?php foreach ($announcement as $a){ ?>
                 <tr <?php echo 'class="'.(boolval($a['verified']) ? 'validated' : 'invalidated').'"'; ?>>
-                    <td><?php echo $a['title']; ?></td>
-                    <td><?php echo $a['content']; ?></td>
+                    <td><?php echo htmlentities($a['title'], ENT_HTML5, 'UTF-8'); ?></td>
+                    <td><?php echo htmlentities($a['content'], ENT_HTML5, 'UTF-8'); ?></td>
                     <td><?php echo $a['author']; ?></td>
                     <td><?php echo $a['start_datetime']; ?></td>
                     <td><?php echo $a['end_datetime']; ?></td>
