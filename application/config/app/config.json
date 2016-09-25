@@ -20,10 +20,10 @@
         "zip": "M4M2A1"
     },
     "weather": {
-        "search_type": 11,
+        "search": 11,
         "units": "metric"
     },
-    "content_scrolling": {
+    "content": {
         "discontinuous": true,
         "speed": 5
     }
