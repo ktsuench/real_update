@@ -4,9 +4,18 @@ append vars
     -var stylesheets = array()
     
 append content
+    //- Access Flag Errpr
     if isset(access_flag)
-        h3 !{access_flag}
+        h3 #{access_flag}
+    //- Pug php issue, consecutive if statements have their
+        conditions in the previous if statement, needs to be
+        fixed. For now just using comments to pad between
+        consecutive if statements.
+    //
+    //- Update settings result
     if isset(settings_res)
-        h3 !{settings_res}
+        h3 #{settings_res}
+    //
+    //- Dump Settings
     if isset(ru_settings)
-    	pre !{ru_settings}
+        pre #{ru_settings}
