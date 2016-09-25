@@ -1,0 +1,22 @@
+extends ../../templates/base_template.pug
+
+append vars
+    -var showFooter = true
+    -var stylesheets = array()
+    
+append body
+    h2 #{page_title}
+    #err !{validation_errors}
+
+    form(method="post", action=page_action)
+        .form-field
+            label(for="email") Email
+            br
+            input(type="email", name="email", maxlength="50", autocomplete="off", value=email)
+        .form-field
+            label(for="pass") Password
+            br
+            input(type="password", name="password", maxlength="30", autocomplete="off")
+        input(type="submit", value="Login")
+
+    a(href=baseUrl, title="Home") Home

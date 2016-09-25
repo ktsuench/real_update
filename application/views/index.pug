@@ -1,0 +1,29 @@
+extends templates/base_template.pug
+
+append mixins
+    include includes/mixins.pug
+
+append vars
+    -var stylesheets = array()
+    -var showFooter = true
+    
+append body
+    h2 Welcome to Real Update
+
+    //- ===== Navigation =====
+    ul#site-nav
+        //- ===== Display =====
+        +navLink(baseUrl."display", "View Announcements")
+
+        //- ===== About =====
+        +navLink(baseUrl."about", "About")
+
+        if userLoggedIn
+            //- ===== Dashboard =====
+            +navLink(baseUrl."dashboard", "Dashboard")
+
+            //- ===== Logout =====
+            +navLink(baseUrl."logout", "Logout")
+        else
+            //- ===== Login =====
+            +navLink(baseUrl."login", "Login")

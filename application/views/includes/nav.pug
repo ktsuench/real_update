@@ -1,0 +1,39 @@
+include mixins.pug
+
+//- ===== Navigation =====
+ul#site-nav
+    //- ===== Announcement List =====
+    +navLink(baseUrl."announcement", "View announcements list")
+
+    //- ===== Announcement Create =====
+    +navLink(baseUrl."announcement/create", "Submit an annoucement")
+
+    if env->dev
+        //- ===== Announcement Create Batch =====
+        +navLink(baseUrl."announcement/create/batch", "Submit an annoucement - batch")
+
+    //- ===== Display =====
+    li
+        +linkBlankTarget(baseUrl."display", "Announcement display")
+
+    if isset(user)
+        if user->type == ADMIN
+            //- ===== User List =====
+            +navLink(baseUrl."user", "View users")
+
+            //- ===== User Create =====
+            +navLink(baseUrl."user/create", "Add new user")
+
+            //- ===== User Create Batch =====
+            +navLink(baseUrl."user/create/batch", "Add new user - batch")
+
+    //- ===== Dashboard =====
+    +navLink(baseUrl."dashboard", "Dashboard")
+
+    if isset(user)
+        if user->type == ADMIN
+            //- ===== Settings =====
+            +navLink(baseUrl."settings", "Settings")
+
+    //- ===== Logout =====
+    +navLink(baseUrl."logout", "Logout")

@@ -1,0 +1,9 @@
+extends ../templates/base_template.pug
+
+append vars
+    -var showFooter = true
+    
+append body
+    include ../includes/nav.pug
+    h2 #{title}
+    block content

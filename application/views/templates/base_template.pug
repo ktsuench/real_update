@@ -1,0 +1,23 @@
+block mixins
+block vars
+doctype html
+html(lang="en")
+    head
+        meta(http-equiv="Content-Type", content="text/html; charset=UTF-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="description", content="Announcement display system")
+        meta(name="keywords", content="announcements, display, announcement display system")
+        meta(name="viewport", content="width=device-width, initial-scale=1")
+        base(href="/")
+
+        title Real Update | #{title}
+        link(rel="icon", type="image/png", href=baseUrl."assets/images/favicon.png")
+
+        each stylesheet in stylesheets
+            link(rel="stylesheet", type="text/css", href=baseUrl."assets/css/".stylesheet)
+    body
+        block body
+        if showFooter
+            #footer
+                em Real Update &copy; #{year}
+        block loadAfter

@@ -1,0 +1,6 @@
+mixin navLink(link, content)
+	li
+        a(href=link, title=content) #{content}
+
+mixin linkBlankTarget(link, content)
+	a(href=link, title=content, target="_blank", rel="noopener noreferrer") #{content}

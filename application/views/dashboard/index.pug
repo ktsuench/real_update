@@ -1,0 +1,12 @@
+extends ../templates/dash_template.pug
+
+append vars
+    -var stylesheets = array()
+    
+append content
+    if isset(access_flag)
+        h3 !{access_flag}
+    if isset(settings_res)
+        h3 !{settings_res}
+    if isset(ru_settings)
+    	pre !{ru_settings}
