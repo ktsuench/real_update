@@ -1,6 +1,6 @@
 function text_counter(e1,e2,n){
     var text_max=n;
-    e2.innerHTML = text_max + ' characters remaining';
+    e2.innerHTML = text_max - e1.value.length + ' characters remaining';
     e2.classList.add('text-primary');
 
     e1.onkeyup = function(){
