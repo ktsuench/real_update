@@ -1,0 +1,157 @@
+//- ====== Fieldset =====
+mixin formFieldSet(name)
+    fieldset
+        legend #{name}
+        block
+
+//- ===== Text =====
+mixin formFieldText(name, lbl, max, ex, val, count)
+    label(for=name) #{lbl}
+    br
+    if max === FALSE
+        input(type="text", name=name, placeholder=ex, autocomplete="off", value=val, id=name)
+    else
+        input(type="text", name=name, maxlength=max, placeholder=ex, autocomplete="off", value=val, id=name)
+    if count !== FALSE
+        span.text-counter(id=name."-ch-count")
+
+//- ===== Textarea =====
+mixin formFieldTextArea(name, lbl, max, ex, val, count)
+    label(for=name) #{lbl}
+    br
+    textarea(name=name, maxlength=max, rows="5", cols="40", placeholder=ex, autocomplete="off", id=name) #{val}
+    if count !== FALSE
+        span.text-counter(id=name."-ch-count")
+
+//- ===== Radio =====
+mixin formFieldRadio(name, lbl, selected, vals)
+    label(for=name) #{lbl}
+    br
+    each val, key in vals
+        - var test = stripos(trim(strval(key)), trim(strval(selected)))
+        if test === FALSE
+            input(type="radio", name=name, value=key)
+        else
+            input(type="radio", name=name, value=key, checked)
+        span #{val}
+        br
+
+extends ../../templates/dash_template.pug
+
+append vars
+    -var stylesheets = array()
+    
+append content
+    #err #{validation_errors}
+
+    if isset(dump_settings)
+        pre !{dump_settings}
+
+    form(method="post", action=baseUrl.page_action, enctype="multipart/form-data", accept-charset="utf-8")
+        //- ===== Institution =====
+        .form-field
+            +formFieldText("institution", "Institution", max_length["institution"], "Ex. Toronto District School Board", settings->institution, TRUE)
+
+        //- ===== Message =====
+        +formFieldSet("Message")
+            //- ===== Title =====
+            .form-field
+                +formFieldText("message[title]", "Title", max_length["title"], "Ex. Toronto District School Board", settings->message->title, TRUE)
+            //- ===== Content =====
+            .form-field
+                +formFieldTextArea("message[content]", "Content", max_length["content"], "Ex. Education Nourishes Youth", settings->message->content, TRUE)
+            .form-field
+                if !empty(settings->message->image)
+                    img(src=upload_path.(settings->message->image), style="height: 20vh; display: block;")
+                    input(type="checkbox", name="message[remove_image]", value=1) Remove Image
+                input(type="file", name="message[image]", accept=image_file_types)
+
+        //- ===== Emergency Announcement =====
+        +formFieldSet("Emergency Announcement")
+            //- ===== Title =====
+            .form-field
+                +formFieldText("emergency[title]", "Title", max_length["title"], "Ex. Toronto District School Board", settings->emergency->title, TRUE)
+            //- ===== Content =====
+            .form-field
+                +formFieldTextArea("emergency[content]", "Content", max_length["content"], "Ex. Education Nourishes Youth", settings->emergency->content, TRUE)
+            .form-field
+                if !empty(settings->emergency->image)
+                    img(src=upload_path.(settings->emergency->image), style="height: 20vh; display: block;")
+                    input(type="checkbox", name="emergency[remove_image]", value=1) Remove Image
+                input(type="file", name="emergency[image]", accept=image_file_types)
+
+        //- ===== Colour =====
+        +formFieldSet("Colour")
+            //- ===== Foreground =====
+            .form-field
+                +formFieldText("colour[foreground]", "Foreground", FALSE, "Ex. #ffffff", settings->colour->foreground, FALSE)
+
+            //- ===== Background =====
+            .form-field
+                +formFieldText("colour[background]", "Background", FALSE, "Ex. #000000", settings->colour->background, FALSE)
+
+        //- ===== Location =====
+        +formFieldSet("Location")
+            //- ===== City =====
+            .form-field
+                +formFieldText("location[city]", "City", FALSE, "Ex. Toronto", settings->location->city, FALSE)
+
+            //- ===== Country =====
+            .form-field
+                +formFieldText("location[country]", "Country", FALSE, "Ex. Canada", settings->location->country, FALSE)
+
+            //- ===== Zip =====
+            .form-field
+                +formFieldText("location[zip]", "Postal/Zip Code", FALSE, "Ex. M4M2A1", settings->location->zip, FALSE)
+
+        //- ===== Weather =====
+        +formFieldSet("Weather")
+            //- ===== Search =====
+            .form-field
+                +formFieldRadio("weather[search]", "Search Type", settings->weather->search, type_options['search'])
+
+            //- ===== Units =====
+            .form-field
+                +formFieldRadio("weather[units]", "Unit Type", settings->weather->units, type_options['units'])
+
+        //- ===== Content =====
+        +formFieldSet("Content Scrolling")
+            //- ===== Speed =====
+            .form-field
+                +formFieldText("content[speed]", "Speed [Seconds]", FALSE, "Ex. 10", settings->content->speed, FALSE)
+
+        input(type="submit", value="Update Settings")
+    a(href=baseUrl."dashboard", title="Back to Dashboard") Back to Dashboard
+append loadAfter
+    link(rel="stylesheet", type="text/css", href=baseUrl."assets/vendor/text_counter/css/text-counter.css")
+    script(src=baseUrl."assets/vendor/text_counter/js/text-counter.js")
+    script.
+        [
+            {
+                'field':        document.getElementById('institution'),
+                'counter':      document.getElementById('institution-ch-count'),
+                'max_length':   #{max_length["institution"]},
+            },
+            {
+                'field':        document.getElementById('message[title]'),
+                'counter':      document.getElementById('message[title]-ch-count'),
+                'max_length':   #{$max_length["title"]},
+            },
+            {
+                'field':        document.getElementById('message[content]'),
+                'counter':      document.getElementById('message[content]-ch-count'),
+                'max_length':   #{$max_length["content"]},
+            },
+            {
+                'field':        document.getElementById('emergency[title]'),
+                'counter':      document.getElementById('emergency[title]-ch-count'),
+                'max_length':   #{$max_length["title"]},
+            },
+            {
+                'field':        document.getElementById('emergency[content]'),
+                'counter':      document.getElementById('emergency[content]-ch-count'),
+                'max_length':   #{$max_length["content"]},
+            }
+        ].forEach(function(e, index){
+            text_counter(e.field, e.counter, e.max_length);
+        });
