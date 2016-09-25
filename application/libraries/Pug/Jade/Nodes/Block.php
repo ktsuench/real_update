@@ -6,7 +6,7 @@ class Block extends Node
 {
     public $isBlock = true;
     public $nodes = array();
-    public $mode; //  modified
+    public $mode;
 
     public function __construct($node = null)
     {
