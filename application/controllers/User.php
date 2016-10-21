@@ -62,9 +62,11 @@ class User extends Navigation{
     }
     
     public function index($sub_res = NULL, $re_type = NULL){
-        $data['user_list'] = $this->user_model->get_user();
         $data['title'] = 'Users List';
+        $data['admin_access_only'] = TRUE;
         
+        $data['user_list'] = $this->user_model->get_user();
+
         if(isset($this->session->res)){
             if($this->session->op == OP_CREATE || $this->session->op == OP_CREATE_BATCH){
                 $f = 'submit';
@@ -248,7 +250,7 @@ class User extends Navigation{
             ? $this->form_validation->get_data()[$field]['postdata']
             : FALSE;
         $user = $this->user_model->get_user($email);
-        $hash = isset($user) ? $user['hash'] : FALSE;
+        $hash = isset($user) && property_exists((object) $user, 'hash') ? $user['hash'] : FALSE;
 
         $res = password_verify($pass, $hash);
         if($res === FALSE){
@@ -261,10 +263,11 @@ class User extends Navigation{
     
     public function login(){
         if(!isset($this->session->user)){
+            $data = self::$_data;
             $data['title'] = 'Login';
             
             $data['page_title'] = 'Login';
-            $data['page_action'] = 'login';
+            $data['page_action'] = base_url('login');
             
             $login_rules_config = array(
                 array(
@@ -282,6 +285,9 @@ class User extends Navigation{
             $this->form_validation->set_rules($login_rules_config); 
             
             if($this->form_validation->run() == FALSE){
+                $data['validation_errors'] = validation_errors();
+                $data['email'] = $this->input->post('email');
+
                 $this->load_view('users/login', $data);
             }else{
                 setlocale(LC_ALL, 'en_EN');
@@ -295,6 +301,7 @@ class User extends Navigation{
                     'name'  =>  ctype_alpha($ln) ? $ln.', '.substr($fn, 0, 1) : $fn,
                     'type'  =>  $user['type']
                 );
+
                 redirect('dashboard');
             }
         }else{
