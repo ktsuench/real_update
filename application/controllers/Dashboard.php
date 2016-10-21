@@ -4,21 +4,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require_once 'Navigation.php';
 
 class Dashboard extends Navigation{
+    /**
+     * Constructor
+     */
     public function __construct(){
         parent::__construct();
     }
     
+    /**
+     * Dashboard Home
+     */
     public function index(){
         $data = self::$_data;
         $data['title'] = 'Dashboard';
         //$data['stylesheet'][] = 'ann_list.css';
 
-        // For debugging purposes
+        /**
+         * For debugging purposes
+         */
         if(ENVIRONMENT == ENV_DEVELOPMENT){
             $data['ru_settings'] = print_r($this->config->item('ru_settings'), TRUE);
         }
 
-        // Notify user that they do not have access to the requested operation
+        /**
+         * Notify user that they do not have access to the requested operation
+         */
         if(isset($this->session->access_flag)){
             $data['access_flag'] = $this->session->access_flag;
         }
@@ -30,33 +40,54 @@ class Dashboard extends Navigation{
             $data['settings_res'] = $this->session->settings_update !== FALSE ? $succ : $fail;
         }
 
+        // Load view
         $this->load_view('dashboard', $data, TRUE);
     }
 
+    /**
+     * Announcement Display Settings
+     */
     public function settings(){
+        // Redirect user if user is not an Admin
         if($this->session->user->type != ADMIN) redirect('dashboard');
 
+        /**
+         * Load helpers and libraries
+         */
         //$this->load->helper('form');
         $this->load->library('form_validation');
 
+        /**
+         * View data
+         */
         $data = self::$_data;
         $data['title'] = 'Settings';
         $data['page_title'] = 'Settings';
         $data['page_action'] = 'settings';
         //$data['stylesheet'][] = 'ann_list.css';
 
-        //View constants
+        /**
+         * View constants
+         */
         {
+            /**
+             * Upload paths
+             */
             $data['upload_path'] = base_url().UPLOAD_ANN;
             $data['upload_path_temp'] = base_url().UPLOAD_TMP;
             
+            /**
+             * Array of max lengths of content
+             */
             $data['max_length'] = array(
                 'institution'   => 75,
                 'title'         => 50,
                 'content'       => 150
             );
 
-            //Array List of Types
+            /**
+             * Array List of Types
+             */
             $data['type_options'] = array( 
                 'search' => array(
                     BY_CITY =>  'City', 
@@ -72,11 +103,15 @@ class Dashboard extends Navigation{
                 )
             );
 
-            //String of Allowed Image Types
+            /**
+             * String of Allowed Image Types
+             */
             $data['image_file_types'] = 'image/*';
         }
 
-        //Form Rule Configuration
+        /**
+         * Form Rule Configuration
+         */
         {
             $message_ann_rules = array(
                 array(
@@ -104,20 +139,26 @@ class Dashboard extends Navigation{
                 )
             );
 
+            /**
+             * @todo Validate colour
+             */
             $colour_rules = array(
                 array(
                     'field' =>  'colour[foreground]',
                     'label' =>  'Foreground Colour',
-                    //'rules' =>  array('callback_[some colour val fn]')
+                    //'rules' =>  array('callback_[some colour validation fn]')
                 ),
                 array(
                     'field' =>  'colour[background]',
                     'label' =>  'Background Colour',
-                    //'rules' =>  array('callback_[some colour val fn]')
+                    //'rules' =>  array('callback_[some colour validation fn]')
                 )
             );
 
-            //TODO: Validate City, Country, and Postal/Zip Code
+            /**
+             * @todo Validate City, Country, and Postal/Zip Code
+             * @var array
+             */
             $location_rules = array(
                 array(
                     'field' =>  'location[city]',
@@ -332,13 +373,19 @@ class Dashboard extends Navigation{
         }
     }
 
-    protected function load_settings_data($category, $name = FALSE){
+    /**
+     * Retrieves the value of the required setting
+     * @param  String   $category   name of setting category
+     * @param  String   $name       name of setting in specified category
+     * @return Mixed    value of setting
+     */
+    private function load_settings_data($category, $name = NULL){
         foreach($this->config->item('ru_settings') as $key => $val){
             $settings[$key] = $val;
         }
         $settings = (object) $settings;
 
-        if($name){
+        if(!is_null($name)){
             $val = $this->input->post($category.'['.$name.']');
 
             return $val !== NULL && trim($val) !== '' ? $val : $settings->$category->$name;
