@@ -2,8 +2,15 @@ extends ../templates/base_template.pug
 
 append vars
     -var showFooter = true
-    
-append body
+    -var hasNav = true
+
+append nav
     include ../includes/nav.pug
-    h2 #{title}
-    block content
+
+append body
+    .fill-both.flex-column
+        .theme-bgcolor.sidebar
+            include ../includes/sidebar.pug
+        .fill-both.padding-40
+            h2 #{title}
+            block content

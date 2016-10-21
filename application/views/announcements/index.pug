@@ -1,0 +1,57 @@
+extends ../templates/dash_template.pug
+
+append vars
+    -var stylesheets = array()
+    
+append content
+    if isset(announcement_res)
+        h3 !{announcement_res}
+    //
+    if !empty(announcement)
+        table.table.table-striped.table-hover
+            thead
+                tr
+                    th Title
+                    th Content
+                    th Author
+                    th Start Date &amp; Time
+                    th End Date &amp; Time
+                    if user->type == ADMIN
+                        th
+                    th
+                    th
+            tbody
+                for a in announcement
+                    -var cls = boolval(a["verified"]) ? "validated" : "invalidated"
+                    tr(class=cls)
+                        td #{a["title"]}
+                        td #{a["content"]}
+                        td #{a["author"]}
+                        td #{a["start_datetime"]}
+                        td #{a["end_datetime"]}
+                        if user->type == ADMIN
+                            -var link = baseUrl."announcement/verify/"
+                            -link .= a["slug"]."/"
+                            -link .=a["verified"]
+                            -var word = a["verified"] ? "Invalidate" : "Validate"
+                            td
+                                a(href=link, title=word." Announcement") #{word}
+                        td
+                            -var link = baseUrl."announcement/update/"
+                            -link .= a["slug"]
+                            a(href=link, title="Update Announcement") Update
+                        td
+                            -var link = baseUrl."announcement/delete/"
+                            -link .= a["slug"]
+                            a(href=link, title="Delete Announcement") Delete
+    else
+        if user->type == ADMIN
+            if admin_mode
+                a(href=baseUrl."announcement/all", title="View All Announcements") View All Announcements
+            else
+                a(href=baseUrl."announcement/", title="View Own Announcements") View Own Announcements
+        //
+        if admin_mode == FALSE
+            h3 There are no announcements that you have created to be shown.
+        else
+            h3 There are no announcements in the system to be shown.

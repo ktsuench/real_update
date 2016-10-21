@@ -1,34 +1,17 @@
+mixin navLink(link, content)
+    li.tab-item
+        a.white-color(href=link, title=content) #{content}
+
 include mixins.pug
 
 //- ===== Navigation =====
-ul#site-nav
-    //- ===== Announcement List =====
-    +navLink(baseUrl."announcement", "View announcements list")
-
-    //- ===== Announcement Create =====
-    +navLink(baseUrl."announcement/create", "Submit an annoucement")
-
-    if env->dev
-        //- ===== Announcement Create Batch =====
-        +navLink(baseUrl."announcement/create/batch", "Submit an annoucement - batch")
-
+ul.nav-links.tab.tab-block
     //- ===== Display =====
-    li
-        +linkBlankTarget(baseUrl."display", "Announcement display")
-
-    if isset(user)
-        if user->type == ADMIN
-            //- ===== User List =====
-            +navLink(baseUrl."user", "View users")
-
-            //- ===== User Create =====
-            +navLink(baseUrl."user/create", "Add new user")
-
-            //- ===== User Create Batch =====
-            +navLink(baseUrl."user/create/batch", "Add new user - batch")
+    li.tab-item
+        +linkBlankTarget(baseUrl."display", "Announcement Display", "", "white-color")
 
     //- ===== Dashboard =====
-    +navLink(baseUrl."dashboard", "Dashboard")
+    //-+navLink(baseUrl."dashboard", "Dashboard")
 
     if isset(user)
         if user->type == ADMIN

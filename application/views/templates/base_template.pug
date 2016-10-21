@@ -1,7 +1,21 @@
-block mixins
 block vars
+if !isset(showFooter)
+    -var showFooter = false
+//
+if !isset(stylesheets)
+    -var stylesheets = array()
+//
+if !isset(bodyCls)
+    -var bodyCls = ""
+//
+if !isset(navCls)
+    -var navCls = ""
+//
+if !isset(hasNav)
+    -var hasNav = false
+
 doctype html
-html(lang="en")
+html.fill-height(lang="en")
     head
         meta(http-equiv="Content-Type", content="text/html; charset=UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
@@ -10,14 +24,30 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1")
         base(href="/")
 
-        title Real Update | #{title}
-        link(rel="icon", type="image/png", href=baseUrl."assets/images/favicon.png")
+        title #{title} | Real Update
+        link(rel="icon", type="image/png", href=baseUrl."assets/images/favicon.png?213")
 
+        link(rel="stylesheet", type="text/css", href=baseUrl."assets/vendor/spectre.css/dist/spectre.min.css")
+        link(rel="stylesheet", type="text/css", href=baseUrl."assets/css/base.css")
         each stylesheet in stylesheets
             link(rel="stylesheet", type="text/css", href=baseUrl."assets/css/".stylesheet)
-    body
+    body.flex-row.flex-align-center.flex-justify-space-between(class=bodyCls)
+        .nav(class=navCls)
+            .nav-brand
+                img(src=baseUrl."assets/images/logo_50x50.png", title="Real Update", alt="Real Update")
+                h1.brand Real Update
+            if hasNav
+                    block nav
+            else
+                ul.nav-links.tab.tab-block
+                    li.tab-item
+                        a.white-color(href=baseUrl."login", title="Login") Login
+                    li.tab-item
+                        a.white-color(href=baseUrl."display", title="Announcement Display") View Display
+                    li.tab-item
+                        a.white-color(href=baseUrl."about", title="About") About
         block body
         if showFooter
-            #footer
+            #site-footer
                 em Real Update &copy; #{year}
         block loadAfter

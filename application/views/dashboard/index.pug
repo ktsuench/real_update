@@ -2,6 +2,7 @@ extends ../templates/dash_template.pug
 
 append vars
     -var stylesheets = array()
+    -var bodyCls = "fill-height"
     
 append content
     //- Access Flag Errpr
@@ -13,9 +14,9 @@ append content
         consecutive if statements.
     //
     //- Update settings result
-    if isset(settings_res)
+    //-if isset(settings_res)
         h3 #{settings_res}
     //
     //- Dump Settings
-    if isset(ru_settings)
+    //-if isset(ru_settings)
         pre #{ru_settings}

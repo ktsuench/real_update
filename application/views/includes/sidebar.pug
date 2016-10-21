@@ -1,0 +1,29 @@
+mixin sidebarLink(link, content)
+    li.sidebar-item
+        a.white-color(href=link, title=content) #{content}
+
+include mixins.pug
+
+//- ===== Navigation =====
+ul.sidebar-links
+    //- ===== Announcement List =====
+    +sidebarLink(baseUrl."announcement", "Announcements List")
+
+    //- ===== Announcement Create =====
+    +sidebarLink(baseUrl."announcement/create", "Submit Announcement")
+
+    if env->dev
+        //- ===== Announcement Create Batch =====
+        +sidebarLink(baseUrl."announcement/create/batch", "Submit Announcement - Batch")
+
+    if isset(user)
+        if user->type == ADMIN
+            //- ===== User List =====
+            ul
+                +sidebarLink(baseUrl."user", "Users List")
+
+                //- ===== User Create =====
+                +sidebarLink(baseUrl."user/create", "Add User")
+
+                //- ===== User Create Batch =====
+                +sidebarLink(baseUrl."user/create/batch", "Add User - Batch")

@@ -6,24 +6,25 @@ extends ../templates/base_template.pug
 
 append vars
     -var showFooter = true
-    -var stylesheets = array()
-    
+    -var bodyCls = "fill-height"
+
 append body
-    h2 About
+    .theme-bgcolor.white-color.fill-both.flex-row.flex-align-center.flex-justify-center
+        h2 About
 
-    p
-        |This project is an improved version of 
-        a(href="https://github.com/ktsuench/tv_announcement_system.git", title="TV Announcement System Github Repo") tv_announcement_system
-        |.
-    p
-        |This project's code can be found at the 
-        a(href="https://github.com/ktsuench/real_update.git", title="Real Update Github Repo") real_update
-        |&nbsp;Github Repo.
+        p
+            |This project is an improved version of 
+            a(href="https://github.com/ktsuench/tv_announcement_system.git", title="TV Announcement System Github Repo") tv_announcement_system
+            |.
+        p
+            |This project's code can be found at the 
+            a(href="https://github.com/ktsuench/real_update.git", title="Real Update Github Repo") real_update
+            |&nbsp;Github Repo.
 
-    div
-        h4 Resources this system uses:
-        ul
-            +resource("http://codeigniter.com/", "CodeIgniter PHP framework", "CodeIgniter PHP framework")
-            +resource("https://erikflowers.github.io/weather-icons/", "Weather Icons", "Weather Icons by Erik Flowers")
-            +resource("http://openweathermap.org/current", "Open Weather Map Current Weather Data Api", "Open Weather Map Current Weather Data Api")
-    a(href=baseUrl, title="Home") Home
+        div
+            h4 Resources this system uses:
+            ul
+                +resource("http://codeigniter.com/", "CodeIgniter PHP framework", "CodeIgniter PHP framework")
+                +resource("https://erikflowers.github.io/weather-icons/", "Weather Icons", "Weather Icons by Erik Flowers")
+                +resource("http://openweathermap.org/current", "Open Weather Map Current Weather Data Api", "Open Weather Map Current Weather Data Api")
+        //-a(href=baseUrl, title="Home") Home
