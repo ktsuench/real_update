@@ -13,15 +13,17 @@ class Announcement extends Navigation{
     }
     
     public function index($admin_mode = FALSE){
+        $data = self::$_data;
+        $data['title'] = 'Announcements List';
+        $data['stylesheet'][] = 'ann_list.css';
+        $data['admin_mode'] = $this->session->user->type != ADMIN ? FALSE : $admin_mode;
+        
         if($admin_mode == FALSE || $this->session->user->type != ADMIN){
             $data['announcement'] = $this->announcement_model->get_announcement();
         }else if($this->session->user->type == ADMIN){
             $data['announcement'] = $this->announcement_model->get_announcement(FALSE, TRUE);
         }
-        $data['title'] = 'Announcements List';
-        $data['stylesheet'][] = 'ann_list.css';
-        $data['admin_mode'] = $this->session->user->type != ADMIN ? FALSE : $admin_mode;
-        
+
         if(isset($this->session->res)){
             if($this->session->op == OP_CREATE || $this->session->op == OP_CREATE_BATCH){
                 $f = 'submit';
@@ -530,7 +532,7 @@ class Announcement extends Navigation{
         $this->allow_access_route($this->agent->referrer(), 'display', 'display');
 
         $appid = '0d93580d7ee4d84bdc222908774fc07b';
-        $zip = 'M4M2A1,ca';
+        $zip = 'M4M2A1'; //'M4M2A1,ca' -> no need to add ca in
         $units = 'metric';
         $link = 'http://api.openweathermap.org/data/2.5/weather?zip='.$zip.'&units='.$units.'&appid='.$appid;
 
