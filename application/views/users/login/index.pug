@@ -2,10 +2,9 @@ extends ../../templates/base_template.pug
 
 append vars
     -var showFooter = true
-    -var bodyCls = "fill-height"
 
 append body
-    .theme-bgcolor.white-color.fill-both.flex-row.flex-align-center.flex-justify-center
+    .theme-bgcolor.white-color.fill-both.flex-row.flex-align-center.flex-justify-center.flex-grow-1
         h2 #{page_title}
         #err #{validation_errors}
 

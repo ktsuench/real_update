@@ -31,7 +31,7 @@ html.fill-height(lang="en")
         link(rel="stylesheet", type="text/css", href=baseUrl."assets/css/base.css")
         each stylesheet in stylesheets
             link(rel="stylesheet", type="text/css", href=baseUrl."assets/css/".stylesheet)
-    body.flex-row.flex-align-center.flex-justify-space-between(class=bodyCls)
+    body.flex-row.flex-align-center.flex-justify-space-between.min-height-100(class=bodyCls)
         .nav(class=navCls)
             .nav-brand
                 img(src=baseUrl."assets/images/logo_50x50.png", title="Real Update", alt="Real Update")
