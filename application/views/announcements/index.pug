@@ -8,6 +8,16 @@ append content
         h3 !{announcement_res}
     //
     if !empty(announcement)
+        if user->type == ADMIN
+            if admin_mode
+                a(href=baseUrl."announcement/", title="View Own Announcements") View Own Announcements
+                br
+                a(href=baseUrl."announcement/delete/all", title="Delete All Announcements") Delete All Announcements
+            else
+                a(href=baseUrl."announcement/all", title="View All Announcements") View All Announcements
+                br
+                a(href=baseUrl."announcement/delete/all", title="Delete Own Announcements") Delete Own Announcements
+
         table.table.table-striped.table-hover
             thead
                 tr
@@ -47,9 +57,9 @@ append content
     else
         if user->type == ADMIN
             if admin_mode
-                a(href=baseUrl."announcement/all", title="View All Announcements") View All Announcements
-            else
                 a(href=baseUrl."announcement/", title="View Own Announcements") View Own Announcements
+            else
+                a(href=baseUrl."announcement/all", title="View All Announcements") View All Announcements
         //
         if admin_mode == FALSE
             h3 There are no announcements that you have created to be shown.
