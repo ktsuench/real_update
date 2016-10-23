@@ -11,7 +11,7 @@ Class Announcement_Model extends CI_Model{
         $this->load->database();
     }
 
-    protected function rem_file($path = FALSE){
+    protected function remove_file($path = FALSE){
         if($path != FALSE){
             if(file_exists($path)) unlink($path);
         }
@@ -80,7 +80,7 @@ Class Announcement_Model extends CI_Model{
         //Remove the existing image file if there is one
         if($slug != FALSE && $ann['image'] !== NULL){
             if((isset($this->session->ann_create['image']) && $this->session->ann_create['image'] != $ann['image']) || $remove_image == TRUE){
-                self::rem_file('./'.UPLOAD_ANN.$ann['image']);
+                self::remove_file('./'.UPLOAD_ANN.$ann['image']);
             }
         }
 
@@ -136,7 +136,7 @@ Class Announcement_Model extends CI_Model{
     public function rem_announcement($slug = FALSE){
         if($slug != FALSE){
             $ann = self::get_announcement($slug);
-            self::rem_file('./'.UPLOAD_ANN.$ann['image']);
+            self::remove_file('./'.UPLOAD_ANN.$ann['image']);
 
             return $this->db->delete(self::TABLE_NAME, array('slug' => $slug));
         }
@@ -155,7 +155,7 @@ Class Announcement_Model extends CI_Model{
         //Remove the images linked to announcements first
         $query = $this->db->get_where(self::TABLE_NAME, $where_img);
         foreach($query->result_array() as $row){
-            self::rem_file('./'.UPLOAD_ANN.$row['image']);
+            self::remove_file('./'.UPLOAD_ANN.$row['image']);
         }
 
         //Delete the announcements
