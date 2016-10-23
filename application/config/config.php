@@ -24,6 +24,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $protocol = (isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!='off'?'https':'http');
+/**
+ * @todo set up base_url with one time setup, save setting to a config file
+ */
 $config['base_url'] = "$protocol://${_SERVER['SERVER_NAME']}/development/real_update";
 
 /*

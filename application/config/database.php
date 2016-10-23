@@ -73,6 +73,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = SERVER_HOST_LOCATION;
 $query_builder = TRUE;
 
+/**
+ * @todo set up database info with one time setup, save setting to a config file
+ */
 $db['local'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
